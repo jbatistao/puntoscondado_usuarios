@@ -3,13 +3,19 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Mail, Lock, User, ArrowLeft, ArrowRight, Eye, EyeOff, Smartphone } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { Mail, Lock, User, ArrowLeft, ArrowRight, Eye, EyeOff, Smartphone, AlertCircle, Loader2 } from 'lucide-react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { signIn } from 'next-auth/react';
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const intent = searchParams.get('intent');
+  
   const [isLogin, setIsLogin] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     nombre: '',
     email: '',
@@ -19,6 +25,7 @@ export default function LoginPage() {
 
   const toggleMode = () => {
     setIsLogin(!isLogin);
+    setError(null);
   };
   
   const togglePasswordVisibility = () => setShowPassword(!showPassword);
@@ -28,11 +35,36 @@ export default function LoginPage() {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Form submitted:', formData);
-    // Redirect to dashboard (mockup)
-    router.push('/dashboard');
+    setError(null);
+    setIsLoading(true);
+
+    if (isLogin) {
+      try {
+        const result = await signIn('credentials', {
+          email: formData.email,
+          password: formData.password,
+          redirect: false,
+        });
+
+        if (result?.error) {
+          setError('Credenciales inválidas. Por favor intente de nuevo.');
+        } else {
+          router.push('/dashboard');
+        }
+      } catch {
+        setError('Ocurrió un error inesperado. Intente más tarde.');
+      } finally {
+        setIsLoading(false);
+      }
+    } else {
+      // Mock registration
+      console.log('Registering:', formData);
+      setIsLoading(false);
+      setIsLogin(true);
+      setError(null);
+    }
   };
 
   return (
@@ -85,6 +117,33 @@ export default function LoginPage() {
               </p>
             </div>
 
+            {/* Contextual Intent Message (Only for registration) */}
+            {!isLogin && intent && (
+              <div className="mb-6 p-4 bg-brand-primary/10 border border-brand-primary/20 rounded-2xl flex items-start gap-3 text-brand-primary-light animate-in fade-in slide-in-from-top-2">
+                <AlertCircle size={20} className="flex-shrink-0 mt-0.5" />
+                <div className="space-y-1">
+                  <p className="text-sm font-bold leading-tight">
+                    {intent === 'comercio' ? 'Registro de Comercio' : 
+                     intent === 'comunidad' ? 'Registro de PH / Edificio' : 
+                     'Registro de Mall'}
+                  </p>
+                  <p className="text-xs opacity-80 font-medium">
+                    {intent === 'comercio' ? 'Regístrate como usuario para afiliar tu negocio.' : 
+                     intent === 'comunidad' ? 'Crea tu perfil personal para registrar tu comunidad.' : 
+                     'Regístrate primero para gestionar tu centro comercial.'}
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {/* Error Message */}
+            {error && (
+              <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-2xl flex items-center gap-3 text-red-500 animate-in fade-in slide-in-from-top-2">
+                <AlertCircle size={20} className="flex-shrink-0" />
+                <p className="text-sm font-bold leading-tight">{error}</p>
+              </div>
+            )}
+
             {/* Form */}
             <form onSubmit={handleSubmit} className="space-y-5">
               {!isLogin && (
@@ -100,7 +159,8 @@ export default function LoginPage() {
                       placeholder="Tu nombre aquí"
                       value={formData.nombre}
                       onChange={handleChange}
-                      className="w-full bg-white/5 border border-white/10 rounded-2xl py-3.5 pl-12 pr-4 text-white outline-none focus:ring-2 focus:ring-brand-primary/30 focus:border-brand-primary transition-all font-medium text-[16px]"
+                      disabled={isLoading}
+                      className="w-full bg-white/5 border border-white/10 rounded-2xl py-3.5 pl-12 pr-4 text-white outline-none focus:ring-2 focus:ring-brand-primary/30 focus:border-brand-primary transition-all font-medium text-[16px] disabled:opacity-50 disabled:cursor-not-allowed"
                     />
                   </div>
                 </div>
@@ -118,7 +178,8 @@ export default function LoginPage() {
                     placeholder="ejemplo@correo.com"
                     value={formData.email}
                     onChange={handleChange}
-                    className="w-full bg-white/5 border border-white/10 rounded-2xl py-3.5 pl-12 pr-4 text-white outline-none focus:ring-2 focus:ring-brand-primary/30 focus:border-brand-primary transition-all font-medium text-[16px]"
+                    disabled={isLoading}
+                    className="w-full bg-white/5 border border-white/10 rounded-2xl py-3.5 pl-12 pr-4 text-white outline-none focus:ring-2 focus:ring-brand-primary/30 focus:border-brand-primary transition-all font-medium text-[16px] disabled:opacity-50 disabled:cursor-not-allowed"
                   />
                 </div>
               </div>
@@ -135,7 +196,8 @@ export default function LoginPage() {
                       placeholder="6000-0000"
                       value={formData.phone}
                       onChange={handleChange}
-                      className="w-full bg-white/5 border border-white/10 rounded-2xl py-3.5 pl-12 pr-4 text-white outline-none focus:ring-2 focus:ring-brand-primary/30 focus:border-brand-primary transition-all font-medium text-[16px]"
+                      disabled={isLoading}
+                      className="w-full bg-white/5 border border-white/10 rounded-2xl py-3.5 pl-12 pr-4 text-white outline-none focus:ring-2 focus:ring-brand-primary/30 focus:border-brand-primary transition-all font-medium text-[16px] disabled:opacity-50 disabled:cursor-not-allowed"
                     />
                   </div>
                 </div>
@@ -160,7 +222,8 @@ export default function LoginPage() {
                     placeholder="••••••••"
                     value={formData.password}
                     onChange={handleChange}
-                    className="w-full bg-white/5 border border-white/10 rounded-2xl py-3.5 pl-12 pr-12 text-white outline-none focus:ring-2 focus:ring-brand-primary/30 focus:border-brand-primary transition-all font-medium text-[16px]"
+                    disabled={isLoading}
+                    className="w-full bg-white/5 border border-white/10 rounded-2xl py-3.5 pl-12 pr-12 text-white outline-none focus:ring-2 focus:ring-brand-primary/30 focus:border-brand-primary transition-all font-medium text-[16px] disabled:opacity-50 disabled:cursor-not-allowed"
                   />
                   <button
                     type="button"
@@ -188,10 +251,20 @@ export default function LoginPage() {
 
               <button
                 type="submit"
-                className="w-full bg-brand-primary hover:bg-brand-primary-hover text-white py-4 rounded-2xl font-bold text-lg shadow-xl shadow-brand-primary/20 transition-all hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2 mt-4"
+                disabled={isLoading}
+                className="w-full bg-brand-primary hover:bg-brand-primary-hover text-white py-4 rounded-2xl font-bold text-lg shadow-xl shadow-brand-primary/20 transition-all hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2 mt-4 disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:scale-100"
               >
-                {isLogin ? 'Ingresar Ahora' : 'Crear Mi Cuenta'}
-                <ArrowRight size={20} />
+                {isLoading ? (
+                  <>
+                    <Loader2 className="animate-spin" size={20} />
+                    Procesando...
+                  </>
+                ) : (
+                  <>
+                    {isLogin ? 'Ingresar Ahora' : 'Crear Mi Cuenta'}
+                    <ArrowRight size={20} />
+                  </>
+                )}
               </button>
             </form>
 

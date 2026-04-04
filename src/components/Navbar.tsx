@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { Menu, X, Smile, Store, Building2, LayoutGrid } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 
@@ -50,7 +51,7 @@ export default function Navbar() {
     <nav className="fixed top-0 w-full z-50 glass">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-20">
-          <a href="/" className="flex-shrink-0 flex items-center gap-2 hover:opacity-90 transition-opacity">
+          <Link href="/" className="flex-shrink-0 flex items-center gap-2 hover:opacity-90 transition-opacity">
             <Image 
               src="/images/logo_icon_mono.png" 
               alt="Logo Puntos Condado" 
@@ -59,7 +60,7 @@ export default function Navbar() {
               className="rounded-xl"
             />
             <span className="font-bold text-xl tracking-tight hidden sm:block text-slate-800 dark:text-white">Puntos Condado</span>
-          </a>
+          </Link>
           
           <div className="hidden md:flex items-center space-x-8">
             {navLinks.map((link) => (
@@ -67,7 +68,14 @@ export default function Navbar() {
             ))}
             
             <div className="flex items-center space-x-4 ml-4">
-              <a href={isComercios ? "/afiliar" : isComunidades ? "#contacto-comunidades" : isMalls ? "#contacto-malls" : "/login"} className="bg-brand-primary hover:bg-brand-primary-hover text-white px-6 py-2.5 rounded-full font-medium transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+              <a 
+                href={
+                  isComercios ? "/login?intent=comercio" : 
+                  isComunidades ? "/login?intent=comunidad" : 
+                  isMalls ? "/login?intent=mall" : "/login"
+                } 
+                className="bg-brand-primary hover:bg-brand-primary-hover text-white px-6 py-2.5 rounded-full font-medium transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+              >
                 {isComercios ? "Registrar mi Comercio" : isComunidades ? "Registrar PH" : isMalls ? "Registrar Mall" : "Ingresa Gratis"}
               </a>
               <div className="flex items-center space-x-2 pl-2 border-l border-gray-200 dark:border-gray-700">
@@ -104,7 +112,14 @@ export default function Navbar() {
               <a key={link.name} href={link.href} className="block px-3 py-3 text-base font-semibold text-slate-800 dark:text-slate-200 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-md">{link.name}</a>
             ))}
             <div className="pt-4 flex flex-col gap-3">
-              <a href={isComercios ? "/afiliar" : isComunidades ? "#contacto-comunidades" : isMalls ? "#contacto-malls" : "/login"} className="w-full text-center bg-brand-primary text-white py-3 rounded-full font-medium shadow-md transition-transform hover:-translate-y-0.5">
+              <a 
+                href={
+                  isComercios ? "/login?intent=comercio" : 
+                  isComunidades ? "/login?intent=comunidad" : 
+                  isMalls ? "/login?intent=mall" : "/login"
+                } 
+                className="w-full text-center bg-brand-primary text-white py-3 rounded-full font-medium shadow-md transition-transform hover:-translate-y-0.5"
+              >
                 {isComercios ? "Registrar mi Comercio" : isComunidades ? "Registrar PH" : isMalls ? "Registrar Mall" : "Ingresa Gratis"}
               </a>
               <div className={`grid gap-2 pt-2 ${visibleIcons.length === 3 ? 'grid-cols-3' : 'grid-cols-2'}`}>

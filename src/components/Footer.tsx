@@ -1,5 +1,6 @@
 import React from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { MapPin, Mail, Link as LinkIcon } from 'lucide-react';
 
 const WhatsAppIcon = ({ size = 20, className = "" }) => (
@@ -60,16 +61,18 @@ export default function Footer() {
 
           {/* Brand Col */}
           <div className="col-span-1 lg:col-span-1">
-            <a href="/" className="flex items-center gap-2 mb-6 hover:opacity-90 transition-opacity inline-flex">
-              <Image
-                src="/images/logo_icon_mono.png"
-                alt="Logo Puntos Condado"
-                width={40}
-                height={40}
-                className="rounded-xl"
+            <Link href="/" className="flex-shrink-0 flex items-center gap-2 group">
+            <div className="w-10 h-10 rounded-xl bg-violet-100 flex items-center justify-center transition-transform group-hover:scale-110">
+              <Image 
+                src="/images/logo_icon_mono.png" 
+                alt="Logo Puntos Condado" 
+                width={32} 
+                height={32} 
+                className=""
               />
-              <span className="font-bold text-2xl tracking-tight">Puntos Condado</span>
-            </a>
+            </div>
+            <span className="font-bold text-xl tracking-tight text-slate-800 dark:text-white">Puntos Condado</span>
+          </Link>
             <p className="text-gray-400 leading-relaxed">
               El programa de lealtad multicomercios que premia tus compras diarias en Condado Del Rey, Panamá.
             </p>

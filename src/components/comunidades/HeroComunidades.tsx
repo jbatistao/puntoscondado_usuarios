@@ -28,7 +28,7 @@ export default function HeroComunidades() {
             La plataforma definitiva para incentivar el pago puntual, mejorar la convivencia y ofrecer beneficios exclusivos a tus residentes en Condado Del Rey.
           </p>
           <div className="flex flex-col sm:flex-row gap-4">
-            <a href="#contacto-comunidades" className="bg-brand-primary hover:bg-brand-primary-hover text-white px-10 py-5 rounded-[2.5rem] font-extrabold text-xl transition-all shadow-xl hover:shadow-2xl text-center">
+            <a href="/login?intent=comunidad" className="bg-brand-primary hover:bg-brand-primary-hover text-white px-10 py-5 rounded-[2.5rem] font-extrabold text-xl transition-all shadow-xl hover:shadow-2xl text-center">
               Registrar mi Edificio
             </a>
             <a href="#como-funciona-comunidades" className="bg-white/10 hover:bg-white/20 backdrop-blur-md text-white border border-white/30 px-10 py-5 rounded-[2.5rem] font-extrabold text-xl transition-all text-center">

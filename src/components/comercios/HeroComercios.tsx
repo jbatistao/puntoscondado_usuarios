@@ -40,7 +40,7 @@ export default function HeroComercios() {
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
-            <a href="#" className="bg-brand-primary hover:bg-brand-primary-hover text-white px-8 py-4 rounded-full font-bold text-lg transition-all shadow-xl shadow-brand-primary/50 flex items-center justify-center gap-2 hover:-translate-y-1">
+            <a href="/login?intent=comercio" className="bg-brand-primary hover:bg-brand-primary-hover text-white px-8 py-4 rounded-full font-bold text-lg transition-all shadow-xl shadow-brand-primary/50 flex items-center justify-center gap-2 hover:-translate-y-1">
               Afiliar mi comercio
               <ArrowRight size={20} />
             </a>

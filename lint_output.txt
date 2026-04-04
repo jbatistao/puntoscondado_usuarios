@@ -1,0 +1,30 @@
+
+> puntoscondado_web@0.1.0 lint
+> eslint
+
+
+C:\Users\josse\Documents\Proyectos\PuntosCondado\puntoscondado_web\.agents\skills\brainstorming\scripts\server.cjs
+    1:16  error    A `require()` style import is forbidden  @typescript-eslint/no-require-imports
+    2:14  error    A `require()` style import is forbidden  @typescript-eslint/no-require-imports
+    3:12  error    A `require()` style import is forbidden  @typescript-eslint/no-require-imports
+    4:14  error    A `require()` style import is forbidden  @typescript-eslint/no-require-imports
+  186:16  warning  'e' is defined but never used            @typescript-eslint/no-unused-vars
+  241:41  warning  'e' is defined but never used            @typescript-eslint/no-unused-vars
+  313:61  warning  'e' is defined but never used            @typescript-eslint/no-unused-vars
+
+C:\Users\josse\Documents\Proyectos\PuntosCondado\puntoscondado_web\src\components\Footer.tsx
+   3:32  warning  'LinkIcon' is defined but never used                                                                                                                   @typescript-eslint/no-unused-vars
+  63:13  error    Do not use an `<a>` element to navigate to `/`. Use `<Link />` from `next/link` instead. See: https://nextjs.org/docs/messages/no-html-link-for-pages  @next/next/no-html-link-for-pages
+
+C:\Users\josse\Documents\Proyectos\PuntosCondado\puntoscondado_web\src\components\HowItWorks.tsx
+  2:8   warning  'Image' is defined but never used        @typescript-eslint/no-unused-vars
+  3:45  warning  'CheckCircle' is defined but never used  @typescript-eslint/no-unused-vars
+
+C:\Users\josse\Documents\Proyectos\PuntosCondado\puntoscondado_web\src\components\Navbar.tsx
+  53:11  error  Do not use an `<a>` element to navigate to `/`. Use `<Link />` from `next/link` instead. See: https://nextjs.org/docs/messages/no-html-link-for-pages  @next/next/no-html-link-for-pages
+
+C:\Users\josse\Documents\Proyectos\PuntosCondado\puntoscondado_web\src\components\comunidades\PricingComunidades.tsx
+  2:38  warning  'Repeat' is defined but never used  @typescript-eslint/no-unused-vars
+
+Ô£û 13 problems (6 errors, 7 warnings)
+

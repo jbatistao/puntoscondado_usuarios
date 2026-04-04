@@ -13,7 +13,7 @@ export default function PricingComercios() {
             Crecimiento sin flujo de caja negativo
           </h3>
           <p className="text-xl text-gray-600 dark:text-gray-400 font-medium italic">
-            "Olvídate de las facturas mensuales en efectivo. Nuestro modelo es 100% colaborativo."
+            &quot;Olvídate de las facturas mensuales en efectivo. Nuestro modelo es 100% colaborativo.&quot;
           </p>
         </div>
 
@@ -59,7 +59,7 @@ export default function PricingComercios() {
                 </div>
               </div>
 
-              <a href="#contacto-comercios" className="bg-brand-primary hover:bg-brand-primary-hover text-white px-12 py-5 rounded-[2rem] font-extrabold text-xl transition-all shadow-xl hover:shadow-2xl transform hover:-translate-y-1 inline-flex items-center gap-3">
+              <a href="/login?intent=comercio" className="bg-brand-primary hover:bg-brand-primary-hover text-white px-12 py-5 rounded-[2rem] font-extrabold text-xl transition-all shadow-xl hover:shadow-2xl transform hover:-translate-y-1 inline-flex items-center gap-3">
                 Registrar mi Comercio
               </a>
             </div>
