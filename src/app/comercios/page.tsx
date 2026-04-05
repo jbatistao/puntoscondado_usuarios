@@ -1,6 +1,7 @@
 import React from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import LaunchAnnouncement from "@/components/LaunchAnnouncement";
 import HeroComercios from "@/components/comercios/HeroComercios";
 import HowItWorksComercios from "@/components/comercios/HowItWorksComercios";
 import ImpulsaComercio from "@/components/comercios/ImpulsaComercio";
@@ -14,6 +15,7 @@ export default function ComerciosPage() {
       <Navbar />
       <main className="flex-grow">
         <HeroComercios />
+        <LaunchAnnouncement />
         <HowItWorksComercios />
         <ImpulsaComercio />
         <BenefitsComercios />

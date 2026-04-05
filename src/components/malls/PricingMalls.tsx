@@ -53,9 +53,9 @@ export default function PricingMalls() {
                 <p>Costo por Suscripción Mall</p>
               </div>
 
-              <a href="#contacto-malls" className="w-full bg-white text-brand-primary hover:bg-gray-100 px-6 py-4 rounded-full font-bold text-lg transition-transform hover:-translate-y-1 shadow-lg">
-                Registrar mi Mall
-              </a>
+              <div className="w-full bg-white/10 text-white/50 px-6 py-4 rounded-full font-bold text-lg cursor-not-allowed select-none border border-white/20 text-center">
+                Próximamente 2026
+              </div>
             </div>
           </div>
         </div>

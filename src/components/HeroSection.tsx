@@ -40,10 +40,10 @@ export default function HeroSection() {
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
-            <a href="/login" className="bg-brand-primary hover:bg-brand-primary-hover text-white px-8 py-4 rounded-full font-bold text-lg transition-all shadow-xl shadow-brand-primary/50 flex items-center justify-center gap-2 hover:-translate-y-1">
-              Crear cuenta gratis
-              <ArrowRight size={20} />
-            </a>
+            <div className="bg-slate-400 dark:bg-slate-700 text-white/90 px-8 py-4 rounded-full font-bold text-lg cursor-not-allowed opacity-60 shadow-none flex items-center justify-center gap-2 select-none border border-white/10">
+              Próximamente 2026
+              <ArrowRight size={20} className="opacity-50" />
+            </div>
             <a href="#como-funciona" className="bg-white/20 hover:bg-white/30 backdrop-blur-md text-white border border-white/30 px-8 py-4 rounded-full font-bold text-lg transition-all flex items-center justify-center shadow-lg hover:-translate-y-1">
               Ver más
             </a>

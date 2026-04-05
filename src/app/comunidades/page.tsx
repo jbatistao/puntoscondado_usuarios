@@ -1,6 +1,7 @@
 import React from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import LaunchAnnouncement from "@/components/LaunchAnnouncement";
 import HeroComunidades from "@/components/comunidades/HeroComunidades";
 import HowItWorksComunidades from "@/components/comunidades/HowItWorksComunidades";
 import ImpulsaComunidades from "@/components/comunidades/ImpulsaComunidades";
@@ -14,6 +15,7 @@ export default function ComunidadesPage() {
       <Navbar />
       <main className="flex-grow">
         <HeroComunidades />
+        <LaunchAnnouncement />
         <HowItWorksComunidades />
         <ImpulsaComunidades />
         <BenefitsComunidades />

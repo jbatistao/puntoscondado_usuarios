@@ -1,5 +1,6 @@
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import LaunchAnnouncement from "@/components/LaunchAnnouncement";
 import HeroMalls from "@/components/malls/HeroMalls";
 import HowItWorksMalls from "@/components/malls/HowItWorksMalls";
 import ImpulsaMalls from "@/components/malls/ImpulsaMalls";
@@ -13,6 +14,7 @@ export default function MallsPage() {
       <Navbar />
       <main className="flex-grow">
         <HeroMalls />
+        <LaunchAnnouncement />
         <HowItWorksMalls />
         <ImpulsaMalls />
         <BenefitsMalls />

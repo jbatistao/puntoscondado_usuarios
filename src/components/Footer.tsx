@@ -82,7 +82,7 @@ export default function Footer() {
           <div>
             <h4 className="text-lg font-bold mb-6 text-gray-200">Plataforma</h4>
             <ul className="space-y-4 text-gray-400">
-              <li><a href="/login" className="hover:text-brand-primary transition-colors">Ingresa Gratis</a></li>
+              <li><span className="text-gray-600 cursor-not-allowed select-none" title="Lanzamiento programado para 2026">Próximamente</span></li>
               <li><a href="#como-funciona" className="hover:text-brand-primary transition-colors">Cómo Funciona</a></li>
               <li><a href="#beneficios" className="hover:text-brand-primary transition-colors">Beneficios</a></li>
               <li><a href="#comercios" className="hover:text-brand-primary transition-colors">Ver Comercios</a></li>

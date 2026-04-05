@@ -36,9 +36,9 @@ export default function ImpulsaMalls() {
               </p>
               
               <div className="mt-12 hidden lg:block">
-                <a href="#contacto-malls" className="inline-flex items-center justify-center gap-2 bg-brand-primary hover:bg-brand-primary-hover text-white px-8 py-4 rounded-full font-bold text-lg transition-transform hover:-translate-y-1 shadow-md">
-                  Digitalizar mi Mall
-                </a>
+                <div className="inline-flex items-center justify-center gap-2 bg-white/10 text-white/50 px-8 py-4 rounded-full font-bold text-lg cursor-not-allowed select-none border border-white/20">
+                  Próximamente 2026
+                </div>
               </div>
             </div>
           </div>
@@ -57,9 +57,9 @@ export default function ImpulsaMalls() {
           </div>
 
           <div className="mt-8 text-center lg:hidden lg:mt-0">
-            <a href="#contacto-malls" className="w-full inline-flex items-center justify-center gap-2 bg-brand-primary hover:bg-brand-primary-hover text-white px-8 py-4 rounded-full font-bold text-lg transition-transform hover:-translate-y-1 shadow-md">
-              Digitalizar mi Mall
-            </a>
+            <div className="w-full inline-flex items-center justify-center gap-2 bg-white/10 text-white/50 px-8 py-4 rounded-full font-bold text-lg cursor-not-allowed select-none border border-white/20">
+              Próximamente 2026
+            </div>
           </div>
 
         </div>

@@ -59,9 +59,9 @@ export default function PricingComercios() {
                 </div>
               </div>
 
-              <a href="/login?intent=comercio" className="bg-brand-primary hover:bg-brand-primary-hover text-white px-12 py-5 rounded-[2rem] font-extrabold text-xl transition-all shadow-xl hover:shadow-2xl transform hover:-translate-y-1 inline-flex items-center gap-3">
-                Registrar mi Comercio
-              </a>
+              <div className="w-full bg-slate-300 dark:bg-slate-700 text-slate-500 dark:text-slate-400 px-12 py-5 rounded-[2rem] font-extrabold text-xl cursor-not-allowed select-none text-center border border-slate-200 dark:border-slate-800">
+                Próximamente 2026
+              </div>
             </div>
           </div>
 
