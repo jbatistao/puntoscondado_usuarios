@@ -1,0 +1,16 @@
+node_modules
+.next
+.git
+.gitignore
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.agent
+.agents
+*.md
+npm-debug.log
+docker-compose.yml
+Dockerfile
+.dockerignore
+Terminal ID: 18684
