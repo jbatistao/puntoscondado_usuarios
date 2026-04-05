@@ -116,7 +116,7 @@ export default function Footer() {
               <a href="#" className="hover:opacity-80 transition-opacity" aria-label="WhatsApp">
                 <WhatsAppIcon size={24} className="text-brand-primary" />
               </a>
-              <a href="#" className="hover:opacity-80 transition-opacity" aria-label="Instagram">
+              <a href="https://www.instagram.com/puntoscondado/" target="_blank" rel="noopener noreferrer" className="hover:opacity-80 transition-opacity" aria-label="Instagram">
                 <InstagramIcon size={24} className="text-brand-primary" />
               </a>
               <a href="#" className="hover:opacity-80 transition-opacity" aria-label="Facebook">
