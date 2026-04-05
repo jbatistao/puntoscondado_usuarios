@@ -1,6 +1,6 @@
 import React from 'react';
 import Image from 'next/image';
-import { UserPlus, CircleDollarSign, Award, CheckCircle, Percent, Clock, QrCode, Gift, Coins, Zap } from 'lucide-react';
+import { UserPlus, CircleDollarSign, Award, Percent, Clock, QrCode, Gift, Coins, Zap } from 'lucide-react';
 
 export default function HowItWorks() {
   const steps = [

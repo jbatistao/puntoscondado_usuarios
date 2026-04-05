@@ -64,7 +64,7 @@ export default function Navbar() {
           
           <div className="hidden md:flex items-center space-x-8">
             {navLinks.map((link) => (
-              <a key={link.name} href={link.href} className="text-slate-800 dark:text-slate-200 hover:text-brand-primary font-semibold transition-colors">{link.name}</a>
+              <Link key={link.name} href={link.href} className="text-slate-800 dark:text-slate-200 hover:text-brand-primary font-semibold transition-colors">{link.name}</Link>
             ))}
             
             <div className="flex items-center space-x-4 ml-4">
@@ -115,14 +115,14 @@ export default function Navbar() {
               </div>
               <div className={`grid gap-2 pt-2 ${visibleIcons.length === 3 ? 'grid-cols-3' : 'grid-cols-2'}`}>
                 {visibleIcons.map((icon) => (
-                  <a 
+                  <Link 
                     key={icon.id}
                     href={icon.href} 
                     className={`flex flex-col items-center justify-center gap-1 ${icon.bg} ${icon.hover} text-gray-800 py-3 rounded-xl font-medium shadow-sm transition-colors border ${icon.border} text-xs text-center`}
                   >
                     <icon.icon size={20} strokeWidth={2} />
                     <span>{icon.title}</span>
-                  </a>
+                  </Link>
                 ))}
               </div>
             </div>
