@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import LaunchAnnouncement from "@/components/LaunchAnnouncement";
@@ -7,6 +8,11 @@ import ImpulsaMalls from "@/components/malls/ImpulsaMalls";
 import BenefitsMalls from "@/components/malls/BenefitsMalls";
 import PricingMalls from "@/components/malls/PricingMalls";
 import ContactFormMalls from "@/components/malls/ContactFormMalls";
+
+export const metadata: Metadata = {
+  title: "Centros Comerciales",
+  description: "Potencia el tráfico de tu mall con nuestro sistema de lealtad multicomercio.",
+};
 
 export default function MallsPage() {
   return (

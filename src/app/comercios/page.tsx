@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import React from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -8,6 +9,11 @@ import ImpulsaComercio from "@/components/comercios/ImpulsaComercio";
 import BenefitsComercios from "@/components/comercios/BenefitsComercios";
 import PricingComercios from "@/components/comercios/PricingComercios";
 import ContactFormComercios from "@/components/comercios/ContactFormComercios";
+
+export const metadata: Metadata = {
+  title: "Comercios Afiliados",
+  description: "Únete a la red de comercios más importante de Condado Del Rey y fideliza a tus clientes.",
+};
 
 export default function ComerciosPage() {
   return (
