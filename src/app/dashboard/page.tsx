@@ -17,7 +17,11 @@ import {
   Search,
   Store,
   Wallet,
-  Loader2
+  Loader2,
+  Menu as MenuIcon,
+  X as XIcon,
+  Building2,
+  LayoutGrid
 } from 'lucide-react';
 import { useSession, signOut } from 'next-auth/react';
 
@@ -25,6 +29,9 @@ export default function UserDashboard() {
   const { data: session } = useSession();
   const [activeTab, setActiveTab] = useState('home');
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const userType = (session?.user as any)?.user_type;
+  const isConsumer = userType === 'CONSUMER' || !userType;
 
   const handleLogout = async () => {
     setIsLoggingOut(true);
@@ -72,70 +79,99 @@ export default function UserDashboard() {
         <header className="sticky top-0 z-30 w-full bg-white dark:bg-[#030712] border-b border-slate-200 dark:border-slate-800 py-4 px-4 sm:px-8 shadow-sm">
           <div className="max-w-7xl mx-auto flex justify-between items-center">
             <div className="flex items-center gap-6">
-               <Link href="/" className="flex items-center gap-2">
+               <Link href="/dashboard" className="flex items-center gap-2 hover:opacity-90 transition-opacity">
                   <Image src="/images/logo_icon_mono.png" alt="Logo" width={40} height={40} className="rounded-xl" />
                   <span className="font-bold text-xl dark:text-white hidden sm:block">Puntos Condado</span>
                </Link>
-
-               {/* Desktop Navigation Links */}
-               <nav className="hidden lg:flex items-center gap-1 ml-4">
-                  {[
-                    { id: 'home', icon: Home, label: 'Inicio' },
-                    { id: 'history', icon: History, label: 'Actividad' },
-                    { id: 'rewards', icon: Gift, label: 'Premios' },
-                    { id: 'wallet', icon: Wallet, label: 'Billetera' },
-                  ].map((item) => (
-                    <button 
-                      key={item.id} 
-                      onClick={() => setActiveTab(item.id)}
-                      className={`flex items-center gap-2 px-4 py-2 rounded-xl font-bold text-sm transition-all ${
-                        activeTab === item.id 
-                        ? 'bg-brand-primary/10 text-brand-primary' 
-                        : 'text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-white/5'
-                      }`}
-                    >
-                      <item.icon size={18} />
-                      {item.label}
-                    </button>
-                  ))}
-               </nav>
             </div>
 
             <div className="flex items-center gap-3 lg:gap-6">
-              <div className="hidden md:flex relative max-w-[200px]">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
-                <input 
-                  type="text" 
-                  placeholder="Buscar..."
-                  className="w-full bg-slate-100 dark:bg-[#111827] border-slate-200 dark:border-slate-800 py-2 pl-10 pr-4 rounded-xl outline-none focus:ring-2 focus:ring-brand-primary/30 dark:text-white text-xs font-medium transition-all"
-                />
-              </div>
-
               <button className="relative w-10 h-10 flex items-center justify-center bg-slate-100 dark:bg-[#111827] rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-white/10 transition-colors">
                 <Bell size={18} />
                 <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-brand-accent rounded-full ring-2 ring-white dark:ring-[#030712]"></span>
               </button>
 
-              <div className="flex items-center gap-3 pl-4 border-l border-slate-200 dark:border-slate-800">
-                <div className="hidden sm:block text-right">
-                  <p className="text-xs font-bold text-slate-900 dark:text-white leading-tight">
-                    {session?.user?.name || 'Usuario'}
-                  </p>
-                  <p className="text-[9px] uppercase tracking-wider font-bold text-brand-gold">Miembro Gold</p>
-                </div>
-                <div className="w-10 h-10 rounded-xl overflow-hidden shadow-md border-2 border-brand-primary/20 relative cursor-pointer">
-                  <Image src={`https://i.pravatar.cc/150?u=${session?.user?.email || 'user'}`} alt="User" layout="fill" objectFit="cover" />
-                </div>
-              </div>
+              <div className="relative group">
+                <button 
+                  onClick={() => setIsMenuOpen(!isMenuOpen)}
+                  className="flex items-center gap-3 pl-4 border-l border-slate-200 dark:border-slate-800 hover:opacity-80 transition-opacity"
+                >
+                  <div className="hidden sm:block text-right">
+                    <p className="text-xs font-bold text-slate-900 dark:text-white leading-tight">
+                      {session?.user?.name || 'Usuario'}
+                    </p>
+                    <p className="text-[9px] uppercase tracking-wider font-bold text-brand-gold">Miembro Gold</p>
+                  </div>
+                  <div className="w-10 h-10 rounded-xl overflow-hidden shadow-md border-2 border-brand-primary/20 relative">
+                    <Image src={`https://i.pravatar.cc/150?u=${session?.user?.email || 'user'}`} alt="User" layout="fill" objectFit="cover" />
+                  </div>
+                </button>
 
-              <button 
-                onClick={handleLogout}
-                disabled={isLoggingOut}
-                className="lg:flex hidden items-center justify-center w-10 h-10 rounded-xl bg-red-50 dark:bg-red-950/30 text-red-500 hover:bg-red-500 hover:text-white transition-all disabled:opacity-50" 
-                title="Cerrar Sesión"
-              >
-                {isLoggingOut ? <Loader2 size={20} className="animate-spin" /> : <LogOut size={20} />}
-              </button>
+                {/* Dropdown Menu */}
+                {isMenuOpen && (
+                  <div className="absolute right-0 mt-3 w-64 bg-white dark:bg-[#111827] rounded-[1.5rem] shadow-2xl border border-slate-200 dark:border-slate-800 py-2 z-50 overflow-hidden transform origin-top-right transition-all">
+                    <div className="p-2 space-y-1">
+                      {[
+                        { id: 'home', icon: Home, label: 'Inicio' },
+                        { id: 'history', icon: History, label: 'Actividad' },
+                        { id: 'rewards', icon: Gift, label: 'Premios' },
+                        { id: 'wallet', icon: Wallet, label: 'Billetera' },
+                        { id: 'profile', icon: User, label: 'Perfil' },
+                      ].map((item) => (
+                        <button 
+                          key={item.id}
+                          onClick={() => {
+                            setActiveTab(item.id);
+                            setIsMenuOpen(false);
+                          }}
+                          className={`flex items-center gap-3 w-full px-4 py-3 rounded-xl font-bold text-sm transition-colors text-left ${
+                            activeTab === item.id 
+                            ? 'bg-brand-primary/10 text-brand-primary' 
+                            : 'text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/5'
+                          }`}
+                        >
+                          <item.icon size={18} />
+                          {item.label}
+                        </button>
+                      ))}
+                      
+                      {isConsumer && (
+                        <div className="pt-2 mt-2 border-t border-slate-50 dark:border-slate-800">
+                          <div className="px-4 py-2 text-[9px] uppercase font-bold text-slate-400 tracking-widest">
+                            Afíliate
+                          </div>
+                          {[
+                            { id: 'reg-comercio', icon: Store, label: 'Registrar Comercio', href: '/comercios' },
+                            { id: 'reg-comunidad', icon: Building2, label: 'Registrar Comunidad', href: '/comunidades' },
+                            { id: 'reg-mall', icon: LayoutGrid, label: 'Registrar Mall', href: '/malls' },
+                          ].map((item) => (
+                            <Link 
+                              key={item.id}
+                              href={item.href}
+                              onClick={() => setIsMenuOpen(false)}
+                              className="flex items-center gap-3 px-4 py-3 rounded-xl text-brand-primary hover:bg-brand-primary/5 font-bold text-sm transition-colors"
+                            >
+                              <item.icon size={16} />
+                              {item.label}
+                            </Link>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                    
+                    <div className="p-2 mt-1 border-t border-slate-100 dark:border-slate-800">
+                      <button 
+                        onClick={handleLogout}
+                        disabled={isLoggingOut}
+                        className="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 font-bold text-sm transition-colors text-left disabled:opacity-50"
+                      >
+                        {isLoggingOut ? <Loader2 size={18} className="animate-spin" /> : <LogOut size={18} />}
+                        Cerrar Sesión
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </header>
