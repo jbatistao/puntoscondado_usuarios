@@ -1,5 +1,6 @@
 import React from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 
 export default function HeroMalls() {
   return (
@@ -28,9 +29,12 @@ export default function HeroMalls() {
             Puntos Condado digitaliza la lealtad en tu centro comercial, conectando a tus inquilinos con miles de usuarios activos y aumentando el tráfico peatonal.
           </p>
           <div className="flex flex-col sm:flex-row gap-4">
-            <div className="bg-white/10 text-white/50 px-10 py-5 rounded-[2.5rem] font-extrabold text-xl cursor-not-allowed select-none border border-white/20 text-center flex items-center justify-center">
-              Próximamente 2026
-            </div>
+            <Link 
+              href="/login?intent=mall"
+              className="bg-brand-primary hover:bg-brand-primary-hover text-white px-10 py-5 rounded-[2.5rem] font-extrabold text-xl transition-all shadow-xl shadow-brand-primary/20 hover:scale-105 active:scale-95 text-center flex items-center justify-center"
+            >
+              Registrar Mall
+            </Link>
             <a href="#como-funciona-malls" className="bg-white/10 hover:bg-white/20 backdrop-blur-md text-white border border-white/30 px-10 py-5 rounded-[2.5rem] font-extrabold text-xl transition-all text-center">
               Saber más
             </a>

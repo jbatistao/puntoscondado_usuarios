@@ -1,5 +1,6 @@
 import React from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { ArrowRight, TrendingUp } from 'lucide-react';
 
 export default function HeroComercios() {
@@ -40,10 +41,13 @@ export default function HeroComercios() {
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
-            <div className="bg-slate-400 dark:bg-slate-700 text-white/90 px-8 py-4 rounded-full font-bold text-lg cursor-not-allowed opacity-60 flex items-center justify-center gap-2 select-none border border-white/10 shadow-none">
-              Próximamente 2026
-              <ArrowRight size={20} className="opacity-50" />
-            </div>
+            <Link 
+              href="/login?intent=comercio"
+              className="bg-brand-primary hover:bg-brand-primary-hover text-white px-8 py-4 rounded-full font-extrabold text-lg transition-all shadow-xl shadow-brand-primary/20 hover:scale-105 active:scale-95 flex items-center justify-center gap-2 hover:shadow-brand-primary/40"
+            >
+              Registrar mi Comercio
+              <ArrowRight size={20} />
+            </Link>
             <a href="#como-funciona-comercios" className="bg-white/20 hover:bg-white/30 backdrop-blur-md text-white border border-white/30 px-8 py-4 rounded-full font-bold text-lg transition-all flex items-center justify-center shadow-lg hover:-translate-y-1">
               Ver más detalles
             </a>

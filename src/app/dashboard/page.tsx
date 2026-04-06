@@ -16,11 +16,38 @@ import {
   CreditCard,
   Search,
   Store,
-  Wallet
+  Wallet,
+  Loader2
 } from 'lucide-react';
+import { useSession, signOut } from 'next-auth/react';
 
 export default function UserDashboard() {
+  const { data: session } = useSession();
   const [activeTab, setActiveTab] = useState('home');
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
+
+  const handleLogout = async () => {
+    setIsLoggingOut(true);
+    try {
+      // 1. Invalidate on Backend
+      const refreshToken = (session?.user as any)?.refreshToken;
+      if (refreshToken) {
+        await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'}/api/auth/logout/`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${(session?.user as any)?.accessToken}`
+          },
+          body: JSON.stringify({ refresh: refreshToken })
+        });
+      }
+    } catch (error) {
+      console.error("Backend logout failed:", error);
+    } finally {
+      // 2. Sign out from NextAuth
+      signOut({ callbackUrl: '/' });
+    }
+  };
 
   const transactions = [
     { id: 1, merchant: "Cafetería Artisan", points: "+45", date: "Hoy, 10:30 AM", type: "earn" },
@@ -91,17 +118,24 @@ export default function UserDashboard() {
 
               <div className="flex items-center gap-3 pl-4 border-l border-slate-200 dark:border-slate-800">
                 <div className="hidden sm:block text-right">
-                  <p className="text-xs font-bold text-slate-900 dark:text-white leading-tight">Juan Pérez</p>
+                  <p className="text-xs font-bold text-slate-900 dark:text-white leading-tight">
+                    {session?.user?.name || 'Usuario'}
+                  </p>
                   <p className="text-[9px] uppercase tracking-wider font-bold text-brand-gold">Miembro Gold</p>
                 </div>
                 <div className="w-10 h-10 rounded-xl overflow-hidden shadow-md border-2 border-brand-primary/20 relative cursor-pointer">
-                  <Image src="https://i.pravatar.cc/150?u=juanperez" alt="User" layout="fill" objectFit="cover" />
+                  <Image src={`https://i.pravatar.cc/150?u=${session?.user?.email || 'user'}`} alt="User" layout="fill" objectFit="cover" />
                 </div>
               </div>
 
-              <Link href="/" className="lg:flex hidden items-center justify-center w-10 h-10 rounded-xl bg-red-50 dark:bg-red-950/30 text-red-500 hover:bg-red-500 hover:text-white transition-all" title="Cerrar Sesión">
-                <LogOut size={20} />
-              </Link>
+              <button 
+                onClick={handleLogout}
+                disabled={isLoggingOut}
+                className="lg:flex hidden items-center justify-center w-10 h-10 rounded-xl bg-red-50 dark:bg-red-950/30 text-red-500 hover:bg-red-500 hover:text-white transition-all disabled:opacity-50" 
+                title="Cerrar Sesión"
+              >
+                {isLoggingOut ? <Loader2 size={20} className="animate-spin" /> : <LogOut size={20} />}
+              </button>
             </div>
           </div>
         </header>

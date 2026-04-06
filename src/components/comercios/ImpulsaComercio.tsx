@@ -1,4 +1,5 @@
 import React from 'react';
+import Link from 'next/link';
 import { Store, TrendingUp, Users } from 'lucide-react';
 
 export default function ImpulsaComercio() {
@@ -36,9 +37,12 @@ export default function ImpulsaComercio() {
               </p>
               
               <div className="mt-12 hidden lg:block">
-                <div className="inline-flex items-center justify-center gap-2 bg-slate-400 dark:bg-slate-700 text-white/80 px-8 py-4 rounded-full font-bold text-lg cursor-not-allowed select-none border border-white/10 opacity-60">
-                  Próximamente 2026
-                </div>
+                <Link 
+                  href="/login?intent=comercio"
+                  className="inline-flex items-center justify-center gap-2 bg-brand-primary hover:bg-brand-primary-hover text-white px-8 py-4 rounded-full font-bold text-lg transition-all shadow-lg hover:scale-105 active:scale-95"
+                >
+                  Registrar mi Comercio
+                </Link>
               </div>
             </div>
           </div>
@@ -57,9 +61,12 @@ export default function ImpulsaComercio() {
           </div>
 
           <div className="mt-8 text-center lg:hidden lg:mt-0">
-            <div className="w-full inline-flex items-center justify-center gap-2 bg-slate-400 dark:bg-slate-700 text-white/80 px-8 py-4 rounded-full font-bold text-lg cursor-not-allowed select-none border border-white/10 opacity-60">
-              Próximamente 2026
-            </div>
+            <Link 
+              href="/login?intent=comercio"
+              className="w-full inline-flex items-center justify-center gap-2 bg-brand-primary hover:bg-brand-primary-hover text-white px-8 py-4 rounded-full font-bold text-lg transition-all shadow-lg active:scale-95 text-center"
+            >
+              Registrar mi Comercio
+            </Link>
           </div>
 
         </div>

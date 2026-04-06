@@ -1,4 +1,5 @@
 import React from 'react';
+import Link from 'next/link';
 import { Home, Heart, Shield } from 'lucide-react';
 
 export default function ImpulsaComunidades() {
@@ -36,9 +37,12 @@ export default function ImpulsaComunidades() {
               </p>
               
               <div className="mt-12 hidden lg:block">
-                <div className="inline-flex items-center justify-center gap-2 bg-white/10 text-white/50 px-8 py-4 rounded-full font-bold text-lg cursor-not-allowed select-none border border-white/20">
-                  Próximamente 2026
-                </div>
+                <Link 
+                  href="/login?intent=comunidad"
+                  className="inline-flex items-center justify-center gap-2 bg-brand-secondary hover:bg-brand-secondary-hover text-slate-950 px-8 py-4 rounded-full font-bold text-lg shadow-lg transition-all hover:scale-105 active:scale-95"
+                >
+                  Registrar PH
+                </Link>
               </div>
             </div>
           </div>
@@ -57,9 +61,12 @@ export default function ImpulsaComunidades() {
           </div>
 
           <div className="mt-8 text-center lg:hidden lg:mt-0">
-            <div className="w-full inline-flex items-center justify-center gap-2 bg-white/10 text-white/50 px-8 py-4 rounded-full font-bold text-lg cursor-not-allowed select-none border border-white/20">
-              Próximamente 2026
-            </div>
+            <Link 
+              href="/login?intent=comunidad"
+              className="w-full inline-flex items-center justify-center gap-2 bg-brand-secondary hover:bg-brand-secondary-hover text-slate-950 px-8 py-4 rounded-full font-bold text-lg shadow-lg active:scale-95 text-center transition-all"
+            >
+              Registrar PH
+            </Link>
           </div>
 
         </div>
