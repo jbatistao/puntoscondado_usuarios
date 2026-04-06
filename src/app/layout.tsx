@@ -20,6 +20,8 @@ export const metadata: Metadata = {
   description: "El programa de lealtad multicomercios que premia tus compras diarias en Condado Del Rey, Panamá.",
 };
 
+import ClientSessionProvider from "@/components/providers/SessionProvider";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -30,7 +32,9 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {children}
+        <ClientSessionProvider>
+          {children}
+        </ClientSessionProvider>
       </body>
     </html>
   );

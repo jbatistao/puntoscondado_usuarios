@@ -15,19 +15,34 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        // Mock authentication for development
-        if (
-          credentials?.email === "admin@puntoscondado.com" &&
-          credentials?.password === "password123"
-        ) {
-          return {
-            id: "1",
-            name: "Juan Pérez",
-            email: "admin@puntoscondado.com",
-            image: "https://i.pravatar.cc/150?u=juanperez",
-          };
+        if (!credentials?.email || !credentials?.password) return null;
+
+        try {
+          const res = await fetch(`${process.env.BACKEND_URL || 'http://localhost:8000'}/api/auth/login/`, {
+            method: 'POST',
+            body: JSON.stringify({
+              email: credentials.email,
+              password: credentials.password,
+            }),
+            headers: { "Content-Type": "application/json" }
+          });
+
+          const data = await res.json();
+
+          if (res.ok && data.user) {
+            // Include tokens in the returned object
+            return {
+              ...data.user,
+              accessToken: data.access,
+              refreshToken: data.refresh,
+              name: data.user.full_name || data.user.email,
+            };
+          }
+          return null;
+        } catch (error) {
+          console.error("Auth error:", error);
+          return null;
         }
-        return null;
       },
     }),
   ],
@@ -38,13 +53,31 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     strategy: "jwt",
   },
   callbacks: {
+    async jwt({ token, user }) {
+      if (user) {
+        return {
+          ...token,
+          ...user,
+        };
+      }
+      return token;
+    },
+    async session({ session, token }) {
+      if (token) {
+        session.user = {
+          ...session.user,
+          ...token,
+        } as any;
+      }
+      return session;
+    },
     authorized({ auth, request: { nextUrl } }) {
       const isLoggedIn = !!auth?.user;
       const isOnDashboard = nextUrl.pathname.startsWith("/dashboard");
       
       if (isOnDashboard) {
         if (isLoggedIn) return true;
-        return false; // Redirect unauthenticated users to login page
+        return false;
       }
       return true;
     },

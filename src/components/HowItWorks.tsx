@@ -1,5 +1,6 @@
 import React from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { UserPlus, CircleDollarSign, Award, Percent, Clock, QrCode, Gift, Coins, Zap } from 'lucide-react';
 
 export default function HowItWorks() {
@@ -134,11 +135,14 @@ export default function HowItWorks() {
             ))}
           </div>
 
-          {/* <div className="text-center mt-6 pb-8">
-            <button className="bg-brand-primary text-white py-4 px-10 mb-4 rounded-full font-bold text-lg hover:bg-brand-primary-hover shadow-[0_0_30px_rgba(20,184,166,0.3)] transition-all hover:scale-105 hover:shadow-[0_0_45px_rgba(20,184,166,0.5)]">
+          <div className="text-center mt-6 pb-8">
+            <Link 
+              href="/login"
+              className="inline-block bg-brand-primary text-white py-4 px-10 mb-4 rounded-full font-bold text-lg hover:bg-brand-primary-hover shadow-[0_0_30px_rgba(20,184,166,0.3)] transition-all hover:scale-105 hover:shadow-[0_0_45px_rgba(20,184,166,0.5)]"
+            >
               Ver catálogo de recompensas
-            </button>
-          </div> */}
+            </Link>
+          </div>
 
         </div>
       </section>

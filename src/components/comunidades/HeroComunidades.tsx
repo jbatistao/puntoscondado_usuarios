@@ -1,5 +1,6 @@
 import React from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 
 export default function HeroComunidades() {
   return (
@@ -28,9 +29,12 @@ export default function HeroComunidades() {
             La plataforma definitiva para incentivar el pago puntual, mejorar la convivencia y ofrecer beneficios exclusivos a tus residentes en Condado Del Rey.
           </p>
           <div className="flex flex-col sm:flex-row gap-4">
-            <div className="bg-white/10 text-white/50 px-10 py-5 rounded-[2.5rem] font-extrabold text-xl cursor-not-allowed select-none border border-white/20 text-center flex items-center justify-center">
-              Próximamente 2026
-            </div>
+            <Link 
+              href="/login?intent=comunidad"
+              className="bg-brand-secondary hover:bg-brand-secondary-hover text-slate-900 px-10 py-5 rounded-[2.5rem] font-extrabold text-xl transition-all shadow-xl shadow-brand-secondary/20 hover:scale-105 active:scale-95 text-center flex items-center justify-center"
+            >
+              Registrar PH
+            </Link>
             <a href="#como-funciona-comunidades" className="bg-white/10 hover:bg-white/20 backdrop-blur-md text-white border border-white/30 px-10 py-5 rounded-[2.5rem] font-extrabold text-xl transition-all text-center">
               Saber más
             </a>

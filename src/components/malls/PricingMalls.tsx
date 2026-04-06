@@ -1,4 +1,5 @@
 import React from 'react';
+import Link from 'next/link';
 import { CheckCircle2, TrendingUp } from 'lucide-react';
 
 export default function PricingMalls() {
@@ -43,7 +44,7 @@ export default function PricingMalls() {
               </div>
             </div>
 
-            <div className="lg:w-1/3 w-full bg-brand-primary p-10 rounded-[2.5rem] shadow-2xl text-center flex flex-col items-center">
+            <div className="lg:w-1/3 w-full bg-brand-primary p-10 rounded-[2.5rem] shadow-2xl text-center flex flex-col items-center border border-white/10">
               <span className="text-white/80 font-bold uppercase text-sm mb-2">INVERSIÓN MENSUAL</span>
               <div className="flex items-center justify-center gap-2 mb-6 text-white">
                 <span className="text-4xl font-bold opacity-80">$</span>
@@ -53,9 +54,12 @@ export default function PricingMalls() {
                 <p>Costo por Suscripción Mall</p>
               </div>
 
-              <div className="w-full bg-white/10 text-white/50 px-6 py-4 rounded-full font-bold text-lg cursor-not-allowed select-none border border-white/20 text-center">
-                Próximamente 2026
-              </div>
+              <Link 
+                href="/login?intent=mall"
+                className="w-full bg-white text-brand-primary hover:bg-gray-100 px-6 py-4 rounded-full font-extrabold text-lg transition-all shadow-xl hover:scale-[1.02] active:scale-[0.98] text-center"
+              >
+                Empezar Gratis
+              </Link>
             </div>
           </div>
         </div>

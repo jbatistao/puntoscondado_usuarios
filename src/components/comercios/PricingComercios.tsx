@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 import { Check, Info, CreditCard, RefreshCcw } from 'lucide-react';
 
 export default function PricingComercios() {
@@ -59,9 +60,12 @@ export default function PricingComercios() {
                 </div>
               </div>
 
-              <div className="w-full bg-slate-300 dark:bg-slate-700 text-slate-500 dark:text-slate-400 px-12 py-5 rounded-[2rem] font-extrabold text-xl cursor-not-allowed select-none text-center border border-slate-200 dark:border-slate-800">
-                Próximamente 2026
-              </div>
+              <Link 
+                href="/login?intent=comercio"
+                className="w-full bg-brand-primary hover:bg-brand-primary-hover text-white px-12 py-5 rounded-[2rem] font-extrabold text-xl transition-all shadow-xl shadow-brand-primary/20 hover:scale-[1.02] active:scale-[0.98] text-center"
+              >
+                Empezar Ahora
+              </Link>
             </div>
           </div>
 

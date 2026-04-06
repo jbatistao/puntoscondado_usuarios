@@ -59,11 +59,51 @@ function LoginForm() {
         setIsLoading(false);
       }
     } else {
-      // Mock registration
-      console.log('Registering:', formData);
-      setIsLoading(false);
-      setIsLogin(true);
-      setError(null);
+      // Real registration
+      try {
+        const userTypeMap: Record<string, string> = {
+          'comercio': 'MERCHANT',
+          'comunidad': 'COMMUNITY',
+          'mall': 'MALL'
+        };
+        
+        const userType = intent ? userTypeMap[intent] || 'CONSUMER' : 'CONSUMER';
+
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'}/api/auth/registration/`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            email: formData.email,
+            password1: formData.password,
+            password2: formData.password,
+            full_name: formData.nombre,
+            phone_number: formData.phone,
+            user_type: userType,
+          }),
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          setIsLogin(true);
+          setError(null);
+          // Optional: Add a success message
+          alert('¡Registro exitoso! Por favor verifica tu correo electrónico para activar tu cuenta.');
+        } else {
+          // Handle specific field errors from Django
+          const errorMsg = data.email ? `Email: ${data.email[0]}` : 
+                          data.password ? `Password: ${data.password[0]}` :
+                          data.non_field_errors ? data.non_field_errors[0] : 
+                          'Error en el registro. Verifique sus datos.';
+          setError(errorMsg);
+        }
+      } catch (err) {
+        setError('Ocurrió un error al conectar con el servidor.');
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 

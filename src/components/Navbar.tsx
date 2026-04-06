@@ -68,12 +68,12 @@ export default function Navbar() {
             ))}
             
             <div className="flex items-center space-x-4 ml-4">
-              <div 
-                className="bg-slate-400 dark:bg-slate-700 text-white/90 px-6 py-2.5 rounded-full font-medium cursor-not-allowed opacity-60 shadow-none border border-slate-300/30 flex items-center gap-2 select-none"
-                title="Lanzamiento programado para 2026"
+              <Link 
+                href={`/login${isComercios ? '?intent=comercio' : isComunidades ? '?intent=comunidad' : isMalls ? '?intent=mall' : ''}`}
+                className="bg-brand-primary hover:bg-brand-primary-hover text-white px-6 py-2.5 rounded-full font-bold transition-all shadow-lg hover:scale-105 active:scale-95 flex items-center gap-2"
               >
-                {isComercios ? "Registrar mi Comercio" : isComunidades ? "Registrar PH" : isMalls ? "Registrar Mall" : "Próximamente"}
-              </div>
+                {isComercios ? "Registrar mi Comercio" : isComunidades ? "Registrar PH" : isMalls ? "Registrar Mall" : "Acceder"}
+              </Link>
               <div className="flex items-center space-x-2 pl-2 border-l border-gray-200 dark:border-gray-700">
                 {visibleIcons.map((icon) => (
                   <a 
@@ -108,11 +108,12 @@ export default function Navbar() {
               <a key={link.name} href={link.href} className="block px-3 py-3 text-base font-semibold text-slate-800 dark:text-slate-200 hover:bg-gray-50 dark:hover:bg-gray-800 rounded-md">{link.name}</a>
             ))}
             <div className="pt-4 flex flex-col gap-3">
-              <div 
-                className="w-full text-center bg-slate-400 dark:bg-slate-700 text-white py-3 rounded-full font-medium opacity-60 cursor-not-allowed select-none"
+              <Link 
+                href={`/login${isComercios ? '?intent=comercio' : isComunidades ? '?intent=comunidad' : isMalls ? '?intent=mall' : ''}`}
+                className="w-full text-center bg-brand-primary hover:bg-brand-primary-hover text-white py-3 rounded-full font-bold shadow-lg transition-all"
               >
-                {isComercios ? "Registrar mi Comercio" : isComunidades ? "Registrar PH" : isMalls ? "Registrar Mall" : "Próximamente"}
-              </div>
+                {isComercios ? "Registrar mi Comercio" : isComunidades ? "Registrar PH" : isMalls ? "Registrar Mall" : "Acceder"}
+              </Link>
               <div className={`grid gap-2 pt-2 ${visibleIcons.length === 3 ? 'grid-cols-3' : 'grid-cols-2'}`}>
                 {visibleIcons.map((icon) => (
                   <Link 
