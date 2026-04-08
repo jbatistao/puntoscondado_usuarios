@@ -18,6 +18,15 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'images.unsplash.com',
       },
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+        port: '8000',
+      },
+      {
+        protocol: 'https',
+        hostname: 'qrspots.s3.amazonaws.com',
+      },
     ],
   },
 };
