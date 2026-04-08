@@ -24,13 +24,16 @@ import {
   LayoutGrid
 } from 'lucide-react';
 import { useSession, signOut } from 'next-auth/react';
+import Navbar from '@/components/Navbar';
 
 export default function UserDashboard() {
   const { data: session } = useSession();
   const [activeTab, setActiveTab] = useState('home');
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isQrModalOpen, setIsQrModalOpen] = useState(false);
   const userType = (session?.user as any)?.user_type;
+  const qrCodeImage = (session?.user as any)?.qr_code_image;
   const isConsumer = userType === 'CONSUMER' || !userType;
 
   const handleLogout = async () => {
@@ -71,127 +74,42 @@ export default function UserDashboard() {
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] dark:bg-[#030712] flex flex-col text-slate-800 dark:text-slate-100">
+      <Navbar />
       
       {/* (1) Top Nav - Full Width */}
-      <div className="flex-grow flex flex-col h-full bg-[#f8fafc] dark:bg-[#030712]">
+      <div className="flex-grow flex flex-col h-full bg-[#f8fafc] dark:bg-[#030712] pt-16">
         
-        {/* Full Width Header */}
-        <header className="sticky top-0 z-30 w-full bg-white dark:bg-[#030712] border-b border-slate-200 dark:border-slate-800 py-4 px-4 sm:px-8 shadow-sm">
-          <div className="max-w-7xl mx-auto flex justify-between items-center">
-            <div className="flex items-center gap-6">
-               <Link href="/dashboard" className="flex items-center gap-2 hover:opacity-90 transition-opacity">
-                  <Image src="/images/logo_icon_mono.png" alt="Logo" width={40} height={40} className="rounded-xl" />
-                  <span className="font-bold text-xl dark:text-white hidden sm:block">Puntos Condado</span>
-               </Link>
-            </div>
-
-            <div className="flex items-center gap-3 lg:gap-6">
-              <button className="relative w-10 h-10 flex items-center justify-center bg-slate-100 dark:bg-[#111827] rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-white/10 transition-colors">
-                <Bell size={18} />
-                <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-brand-accent rounded-full ring-2 ring-white dark:ring-[#030712]"></span>
-              </button>
-
-              <div className="relative group">
-                <button 
-                  onClick={() => setIsMenuOpen(!isMenuOpen)}
-                  className="flex items-center gap-3 pl-4 border-l border-slate-200 dark:border-slate-800 hover:opacity-80 transition-opacity"
-                >
-                  <div className="hidden sm:block text-right">
-                    <p className="text-xs font-bold text-slate-900 dark:text-white leading-tight">
-                      {session?.user?.name || 'Usuario'}
-                    </p>
-                    <p className="text-[9px] uppercase tracking-wider font-bold text-brand-gold">Miembro Gold</p>
-                  </div>
-                  <div className="w-10 h-10 rounded-xl overflow-hidden shadow-md border-2 border-brand-primary/20 relative">
-                    <Image src={`https://i.pravatar.cc/150?u=${session?.user?.email || 'user'}`} alt="User" layout="fill" objectFit="cover" />
-                  </div>
-                </button>
-
-                {/* Dropdown Menu */}
-                {isMenuOpen && (
-                  <div className="absolute right-0 mt-3 w-64 bg-white dark:bg-[#111827] rounded-[1.5rem] shadow-2xl border border-slate-200 dark:border-slate-800 py-2 z-50 overflow-hidden transform origin-top-right transition-all">
-                    <div className="p-2 space-y-1">
-                      {[
-                        { id: 'home', icon: Home, label: 'Inicio' },
-                        { id: 'history', icon: History, label: 'Actividad' },
-                        { id: 'rewards', icon: Gift, label: 'Premios' },
-                        { id: 'wallet', icon: Wallet, label: 'Billetera' },
-                        { id: 'profile', icon: User, label: 'Perfil' },
-                      ].map((item) => (
-                        <button 
-                          key={item.id}
-                          onClick={() => {
-                            setActiveTab(item.id);
-                            setIsMenuOpen(false);
-                          }}
-                          className={`flex items-center gap-3 w-full px-4 py-3 rounded-xl font-bold text-sm transition-colors text-left ${
-                            activeTab === item.id 
-                            ? 'bg-brand-primary/10 text-brand-primary' 
-                            : 'text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/5'
-                          }`}
-                        >
-                          <item.icon size={18} />
-                          {item.label}
-                        </button>
-                      ))}
-                      
-                      {isConsumer && (
-                        <div className="pt-2 mt-2 border-t border-slate-50 dark:border-slate-800">
-                          <div className="px-4 py-2 text-[9px] uppercase font-bold text-slate-400 tracking-widest">
-                            Afíliate
-                          </div>
-                          {[
-                            { id: 'reg-comercio', icon: Store, label: 'Registrar Comercio', href: '/comercios' },
-                            { id: 'reg-comunidad', icon: Building2, label: 'Registrar Comunidad', href: '/comunidades' },
-                            { id: 'reg-mall', icon: LayoutGrid, label: 'Registrar Mall', href: '/malls' },
-                          ].map((item) => (
-                            <Link 
-                              key={item.id}
-                              href={item.href}
-                              onClick={() => setIsMenuOpen(false)}
-                              className="flex items-center gap-3 px-4 py-3 rounded-xl text-brand-primary hover:bg-brand-primary/5 font-bold text-sm transition-colors"
-                            >
-                              <item.icon size={16} />
-                              {item.label}
-                            </Link>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                    
-                    <div className="p-2 mt-1 border-t border-slate-100 dark:border-slate-800">
-                      <button 
-                        onClick={handleLogout}
-                        disabled={isLoggingOut}
-                        className="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 font-bold text-sm transition-colors text-left disabled:opacity-50"
-                      >
-                        {isLoggingOut ? <Loader2 size={18} className="animate-spin" /> : <LogOut size={18} />}
-                        Cerrar Sesión
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        </header>
-
         {/* (2) Main Content - Centered */}
         <main className="flex-grow p-4 sm:p-8 lg:py-12 mx-auto w-full max-w-7xl mb-20 lg:mb-0">
           
           {/* Top Priority Section: QR, Points, Level */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
             
-            {/* 1. QR Code Card */}
-            <div className="bg-white dark:bg-[#111827] rounded-[2rem] p-6 shadow-sm border border-slate-200 dark:border-slate-800 flex flex-col items-center justify-center text-center group cursor-pointer hover:shadow-xl transition-all duration-300">
-               <div className="bg-slate-50 dark:bg-[#1A2333] p-4 rounded-3xl mb-4 border border-slate-100 dark:border-slate-800 group-hover:scale-105 transition-transform duration-500">
-                  <QrCode className="text-slate-900 dark:text-white" size={100} strokeWidth={1.5} />
+            <div 
+              onClick={() => setIsQrModalOpen(true)}
+              className="bg-white dark:bg-[#111827] rounded-[2rem] p-6 shadow-sm border border-slate-200 dark:border-slate-800 flex flex-col items-center justify-center text-center group cursor-pointer hover:shadow-xl transition-all duration-300"
+            >
+               <div className="bg-white p-2 rounded-3xl mb-4 border border-slate-100 dark:border-slate-800 group-hover:scale-105 transition-transform duration-500 relative w-[130px] h-[130px] flex items-center justify-center">
+                  {qrCodeImage ? (
+                    <Image 
+                      src={qrCodeImage} 
+                      alt="Mi Código QR" 
+                      width={120} 
+                      height={120} 
+                      className="rounded-xl"
+                    />
+                  ) : (
+                    <div className="flex flex-col items-center justify-center text-slate-400">
+                      <QrCode size={60} strokeWidth={1} />
+                      <span className="text-[8px] mt-1 font-bold">Generando...</span>
+                    </div>
+                  )}
                </div>
                <h3 className="font-bold text-slate-900 dark:text-white text-sm uppercase tracking-widest flex items-center gap-2">
                   Mi Código QR
                   <ChevronRight size={14} className="text-brand-primary" />
                </h3>
-               <p className="text-[10px] text-slate-500 dark:text-slate-400 font-medium mt-1">Muestra este código para acumular puntos</p>
+               <p className="text-[10px] text-slate-500 dark:text-slate-400 font-medium mt-1">Toca para ampliar y mostrar en caja</p>
             </div>
 
             {/* 2. Points Balance Card */}
@@ -285,7 +203,13 @@ export default function UserDashboard() {
                 <div className="grid grid-cols-1 gap-6">
                   {partners.map((partner) => (
                      <div key={partner.id} className="relative group rounded-3xl overflow-hidden h-32 cursor-pointer">
-                        <Image src={partner.image} alt={partner.name} fill className="object-cover group-hover:scale-110 transition-transform duration-700 brightness-75 group-hover:brightness-50" />
+                        <Image 
+                          src={partner.image} 
+                          alt={partner.name} 
+                          fill 
+                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                          className="object-cover group-hover:scale-110 transition-transform duration-700 brightness-75 group-hover:brightness-50" 
+                        />
                         <div className="absolute inset-0 p-5 flex flex-col justify-end">
                            <p className="text-white font-black text-base">{partner.name}</p>
                            <p className="text-brand-secondary-light font-bold text-[11px] flex items-center gap-1">
@@ -303,31 +227,52 @@ export default function UserDashboard() {
           
         </main>
 
-        {/* (4) Mobile Bottom Nav */}
-        <nav className="fixed bottom-0 left-0 w-full bg-white dark:bg-[#111827] border-t border-slate-200 dark:border-slate-800 px-6 py-3 lg:hidden flex justify-between items-center z-50 shadow-2xl">
-           {[
-            { id: 'home', icon: Home, label: 'Inicio' },
-            { id: 'history', icon: History, label: 'Actividad' },
-            { id: 'qr', icon: QrCode, label: 'Escanear', special: true },
-            { id: 'rewards', icon: Gift, label: 'Premios' },
-            { id: 'profile', icon: User, label: 'Perfil' },
-          ].map((item) => (
-             <button 
-              key={item.id} 
-              onClick={() => setActiveTab(item.id)}
-              className={`flex flex-col items-center gap-1 transition-colors ${
-                item.special 
-                ? 'bg-brand-primary text-white w-14 h-14 -mt-10 rounded-full shadow-2xl border-4 border-white dark:border-[#030712] flex items-center justify-center transition-transform hover:scale-110 active:scale-95' 
-                : activeTab === item.id 
-                  ? 'text-brand-primary' 
-                  : 'text-slate-400'
-              }`}
-             >
-                <item.icon size={item.special ? 28 : 24} strokeWidth={item.special ? 2.5 : 2} />
-                {!item.special && <span className="text-[10px] font-bold uppercase tracking-tight">{item.label}</span>}
-             </button>
-          ))}
-        </nav>
+        {/* --- QR Modal --- */}
+        {isQrModalOpen && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/90 backdrop-blur-md animate-in fade-in duration-300">
+            <div 
+              className="absolute inset-0" 
+              onClick={() => setIsQrModalOpen(false)} 
+            />
+            <div className="bg-white rounded-[2.5rem] p-8 max-w-sm w-full relative z-10 shadow-2xl flex flex-col items-center text-center transform animate-in zoom-in-95 duration-300">
+              <button 
+                onClick={() => setIsQrModalOpen(false)}
+                className="absolute top-6 right-6 text-slate-400 hover:text-slate-900"
+              >
+                <XIcon size={24} />
+              </button>
+              
+              <div className="w-20 h-20 bg-brand-primary/10 rounded-3xl flex items-center justify-center mb-6">
+                <Image src="/images/logo_icon_mono.png" alt="Logo" width={48} height={48} />
+              </div>
+              
+              <h2 className="text-2xl font-black text-slate-900 mb-2">Mi Código QR</h2>
+              <p className="text-slate-500 text-sm font-medium mb-8">Presenta este código en el comercio para acumular o canjear tus puntos.</p>
+              
+              <div className="bg-white p-4 rounded-[2rem] shadow-inner border border-slate-100 mb-8 w-full aspect-square flex items-center justify-center">
+                {qrCodeImage ? (
+                  <Image 
+                    src={qrCodeImage} 
+                    alt="Código QR de Usuario" 
+                    width={280} 
+                    height={280}
+                    className="w-full h-full object-contain"
+                  />
+                ) : (
+                  <div className="flex flex-col items-center gap-2 text-slate-400">
+                     <Loader2 className="animate-spin text-brand-primary" size={40} />
+                     <span className="font-bold">Generando código...</span>
+                  </div>
+                )}
+              </div>
+              
+              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-2">ID de Usuario</p>
+              <p className="font-mono text-xs bg-slate-50 px-4 py-2 rounded-full border border-slate-100 text-slate-600">
+                {session?.user?.email}
+              </p>
+            </div>
+          </div>
+        )}
 
       </div>
     </div>
