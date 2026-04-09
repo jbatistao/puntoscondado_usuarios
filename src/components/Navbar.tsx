@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Menu, X, Smile, Store, Building2, LayoutGrid, Home, History, Gift, Wallet, LogOut, User } from 'lucide-react';
+import { Menu, X, Smile, Store, Building2, LayoutGrid, Home, History, Gift, Wallet, LogOut, User, Search } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import { useSession, signOut } from 'next-auth/react';
 
@@ -13,7 +13,7 @@ export default function Navbar() {
   const pathname = usePathname();
 
   // Public landing pages always show public navbar regardless of auth state
-  const publicPages = ['/', '/comercios', '/comunidades', '/malls'];
+  const publicPages = ['/', '/comercios', '/comunidades', '/malls', '/directorio'];
   const isPublicPage = publicPages.includes(pathname);
 
   // Show public navbar on public pages; show authenticated navbar only on protected pages
@@ -94,6 +94,7 @@ export default function Navbar() {
         { name: 'Impulsa tu Comunidad', href: '#impulsa-comunidades' },
         { name: 'Beneficios', href: '#beneficios-comunidades' },
         { name: 'La Inversión', href: '#pricing-comunidades' },
+        { name: 'Directorio', href: '/directorio' },
         { name: 'Contacto', href: '#contacto-comunidades' },
       ]
     : isMalls
@@ -102,12 +103,13 @@ export default function Navbar() {
         { name: 'Impulsa tu Mall', href: '#impulsa-malls' },
         { name: 'Beneficios', href: '#beneficios-malls' },
         { name: 'Inversión', href: '#pricing-malls' },
+        { name: 'Directorio', href: '/directorio' },
         { name: 'Contacto', href: '#contacto-malls' },
       ]
     : [
         { name: 'Cómo Funciona', href: '#como-funciona' },
         { name: 'Beneficios', href: '#beneficios' },
-        { name: 'Ver Comercios', href: '#comercios' },
+        { name: 'Directorio', href: '/directorio' },
       ];
 
   const icons = [
@@ -128,6 +130,7 @@ export default function Navbar() {
   ];
 
   const affiliateItems = [
+    { id: 'directorio', icon: Search, label: 'Directorio', href: '/directorio' },
     { id: 'comercios', icon: Store, label: 'Comercios', href: '/dashboard/comercios' },
     { id: 'comunidades', icon: Building2, label: 'Comunidades', href: '/dashboard/comunidades' },
     { id: 'malls', icon: LayoutGrid, label: 'Malls', href: '/dashboard/malls' },

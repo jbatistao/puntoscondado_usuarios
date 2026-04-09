@@ -21,10 +21,17 @@ import {
   Menu as MenuIcon,
   X as XIcon,
   Building2,
-  LayoutGrid
+  LayoutGrid,
+  Plus,
+  Users,
+  TrendingUp,
+  MapPin,
+  CircleDollarSign,
+  Info
 } from 'lucide-react';
 import { useSession, signOut } from 'next-auth/react';
 import Navbar from '@/components/Navbar';
+import PointRegistrationModal from '@/components/comercios/PointRegistrationModal';
 
 export default function UserDashboard() {
   const { data: session } = useSession();
@@ -32,9 +39,22 @@ export default function UserDashboard() {
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isQrModalOpen, setIsQrModalOpen] = useState(false);
-  const userType = (session?.user as any)?.user_type;
-  const qrCodeImage = (session?.user as any)?.qr_code_image;
+  const [isPointModalOpen, setIsPointModalOpen] = useState(false);
+  const [selectedMerchant, setSelectedMerchant] = useState<any>(null);
+  const [userData, setUserData] = useState<any>(null);
+  const [isLoadingProfile, setIsLoadingProfile] = useState(true);
+  const [transactions, setTransactions] = useState<any[]>([]);
+  const [isLoadingHistory, setIsLoadingHistory] = useState(true);
+  
+  const userType = userData?.user_type || (session?.user as any)?.user_type;
+  const qrCodeImage = userData?.qr_code_image || (session?.user as any)?.qr_code_image;
+  const points = userData?.total_points ?? 0;
+  const savings = userData?.estimated_savings ?? 0;
+  const tier = userData?.tier || 'BRONCE';
+  const ownedMerchants = userData?.merchants || [];
+  
   const isConsumer = userType === 'CONSUMER' || !userType;
+  const isMerchant = userType === 'MERCHANT';
 
   const handleLogout = async () => {
     setIsLoggingOut(true);
@@ -59,12 +79,64 @@ export default function UserDashboard() {
     }
   };
 
-  const transactions = [
-    { id: 1, merchant: "Cafetería Artisan", points: "+45", date: "Hoy, 10:30 AM", type: "earn" },
-    { id: 2, merchant: "Farmacias del Rey", points: "-150", date: "Ayer, 4:20 PM", type: "redeem" },
-    { id: 3, merchant: "Supermercado Condado", points: "+120", date: "2 de abril", type: "earn" },
-    { id: 4, merchant: "Pizzería Italia", points: "+85", date: "31 de marzo", type: "earn" },
-  ];
+  const fetchProfile = async () => {
+    if (!session?.user) return;
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'}/api/auth/user/`, {
+        headers: {
+          'Authorization': `Bearer ${(session?.user as any)?.accessToken}`
+        }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setUserData(data);
+      }
+    } catch (error) {
+      console.error("Error fetching user profile:", error);
+    } finally {
+      setIsLoadingProfile(false);
+    }
+  };
+
+  const fetchHistory = async () => {
+    if (!session?.user) return;
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'}/api/rewards/history/?limit=5`, {
+        headers: {
+          'Authorization': `Bearer ${(session?.user as any)?.accessToken}`
+        }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setTransactions(data);
+      }
+    } catch (error) {
+      console.error("Error fetching transaction history:", error);
+    } finally {
+      setIsLoadingHistory(false);
+    }
+  };
+
+  const handleRefresh = () => {
+    fetchProfile();
+    fetchHistory();
+  };
+
+  React.useEffect(() => {
+    fetchProfile();
+    fetchHistory();
+  }, [session]);
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diff = now.getTime() - date.getTime();
+    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+    
+    if (days === 0) return 'Hoy, ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    if (days === 1) return 'Ayer, ' + date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    return date.toLocaleDateString('es-ES', { day: 'numeric', month: 'long' });
+  };
 
   const partners = [
     { id: 1, name: "Artisan Coffee", image: "https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=200&h=200&fit=crop", promo: "2x1 en capuchinos" },
@@ -81,6 +153,26 @@ export default function UserDashboard() {
         
         {/* (2) Main Content - Centered */}
         <main className="flex-grow p-4 sm:p-8 lg:py-12 mx-auto w-full max-w-7xl mb-20 lg:mb-0">
+          
+          {/* Expiration Alert */}
+          {userData?.loyalty_info?.points_expiring_soon > 0 && (
+            <div className="mb-6 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800/50 rounded-2xl p-4 flex items-center gap-4 animate-in fade-in slide-in-from-top-4 duration-500">
+              <div className="w-10 h-10 rounded-full bg-amber-100 dark:bg-amber-900/40 flex items-center justify-center flex-shrink-0 text-amber-600 dark:text-amber-400">
+                <Bell size={20} className="animate-bounce" />
+              </div>
+              <div className="flex-1">
+                <p className="text-sm font-bold text-amber-900 dark:text-amber-100">
+                  ¡Atención! Tienes <span className="text-amber-600 dark:text-amber-400">{userData.loyalty_info.points_expiring_soon.toLocaleString()} puntos</span> por vencer
+                </p>
+                <p className="text-xs text-amber-700 dark:text-amber-400/80 font-medium">
+                  Úsalos en los próximos 30 días antes de que expiren.
+                </p>
+              </div>
+              <Link href="/directorio" className="text-xs font-bold text-amber-900 dark:text-amber-100 bg-amber-200 dark:bg-amber-800 px-4 py-2 rounded-xl hover:bg-amber-300 dark:hover:bg-amber-700 transition-colors">
+                Canjear ahora
+              </Link>
+            </div>
+          )}
           
           {/* Top Priority Section: QR, Points, Level */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
@@ -117,18 +209,24 @@ export default function UserDashboard() {
                <div className="absolute top-0 right-0 -translate-y-1/2 translate-x-1/2 w-40 h-40 bg-white/10 rounded-full blur-3xl" />
                <p className="text-white/70 font-bold uppercase tracking-widest text-[10px] mb-2">Saldo de Puntos</p>
                <div className="flex items-end gap-2 mb-6">
-                  <span className="text-5xl font-black text-white tracking-tight">2,540</span>
+                  <span className="text-5xl font-black text-white tracking-tight">
+                    {points.toLocaleString()}
+                  </span>
                   <span className="text-sm font-bold text-white/80 bg-white/20 px-2.5 py-1 rounded-lg mb-1 backdrop-blur-md">PTS</span>
                </div>
                <div className="flex items-center gap-4 border-t border-white/10 pt-4">
                   <div className="flex flex-col">
                      <span className="text-white/60 text-[9px] uppercase font-bold tracking-tighter">Ahorro estimado</span>
-                     <span className="font-extrabold text-white text-sm">$25.40</span>
+                     <span className="font-extrabold text-white text-sm">
+                        ${savings.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                     </span>
                   </div>
                   <div className="w-px h-6 bg-white/10"></div>
                   <div className="flex flex-col">
                      <span className="text-white/60 text-[9px] uppercase font-bold tracking-tighter">Por vencer</span>
-                     <span className="font-extrabold text-brand-secondary-light text-sm">45 pts</span>
+                     <span className="font-extrabold text-brand-secondary-light text-sm">
+                        {(userData?.loyalty_info?.points_expiring_soon || 0).toLocaleString()} pts
+                     </span>
                   </div>
                </div>
             </div>
@@ -138,18 +236,38 @@ export default function UserDashboard() {
                <div className="flex justify-between items-start mb-4">
                   <div>
                      <p className="text-slate-400 dark:text-slate-500 font-bold uppercase tracking-widest text-[10px] mb-1">Nivel Actual</p>
-                     <h3 className="text-2xl font-black text-brand-gold tracking-tight">MIEMBRO GOLD</h3>
+                     <h3 className="text-2xl font-black text-brand-gold tracking-tight">
+                        {(() => {
+                           const label = userData?.loyalty_info?.tier_label || tier || '';
+                           return label.charAt(0).toUpperCase() + label.slice(1).toLowerCase();
+                        })()}
+                     </h3>
                   </div>
                   <div className="w-12 h-12 bg-brand-gold/10 rounded-2xl flex items-center justify-center border border-brand-gold/20">
                      <Star className="text-brand-gold fill-brand-gold" size={24} />
                   </div>
                </div>
-               <p className="text-slate-600 dark:text-slate-400 font-bold text-xs mb-4">
-                  Faltan <span className="text-slate-900 dark:text-white">460 pts</span> para Platinum
-               </p>
-               <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-2.5 mb-2 overflow-hidden">
-                  <div className="bg-brand-accent h-full rounded-full w-[65%] shadow-[0_0_10px_rgba(255,152,3,0.4)]" />
-               </div>
+               
+               {userData?.loyalty_info?.next_tier_name ? (
+                 <>
+                   <p className="text-slate-600 dark:text-slate-400 font-bold text-xs mb-4">
+                      Faltan <span className="text-slate-900 dark:text-white">
+                        {Math.ceil(userData.loyalty_info.points_to_next_tier)} pts
+                      </span> para {userData.loyalty_info.next_tier_name}
+                   </p>
+                   <div className="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-2.5 mb-2 overflow-hidden">
+                      <div 
+                        className="bg-brand-accent h-full rounded-full shadow-[0_0_10px_rgba(255,152,3,0.4)] transition-all duration-1000" 
+                        style={{ width: `${userData.loyalty_info.progress_percentage}%` }}
+                      />
+                   </div>
+                 </>
+               ) : (
+                 <p className="text-slate-600 dark:text-slate-400 font-bold text-xs mb-4">
+                    ¡Has alcanzado el nivel máximo!
+                 </p>
+               )}
+               
                <div className="flex justify-between text-[9px] font-bold text-slate-400 uppercase tracking-tighter">
                   <span>Inicia</span>
                   <span>Meta</span>
@@ -158,10 +276,10 @@ export default function UserDashboard() {
 
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             
             {/* Left Column: Activity */}
-            <div className="lg:col-span-7 space-y-8">
+            <div className="space-y-8">
               {/* Transactions Section */}
               <div className="bg-white dark:bg-[#111827] rounded-[2.5rem] p-8 shadow-sm border border-slate-200 dark:border-slate-800">
                 <div className="flex justify-between items-center mb-8">
@@ -172,51 +290,100 @@ export default function UserDashboard() {
                   <Link href="#" className="text-sm font-bold text-brand-primary hover:text-brand-primary-light transition-colors">Ver todo</Link>
                 </div>
                 <div className="space-y-6">
-                  {transactions.map((tx) => (
-                    <div key={tx.id} className="flex items-center justify-between group hover:opacity-80 cursor-pointer">
-                      <div className="flex items-center gap-4">
-                        <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${tx.type === 'earn' ? 'bg-brand-secondary/10 text-brand-secondary' : 'bg-red-100 dark:bg-red-950/30 text-red-600 dark:text-red-400'}`}>
-                          {tx.type === 'earn' ? <CreditCard size={22} /> : <Gift size={22} />}
-                        </div>
-                        <div>
-                          <p className="font-bold text-slate-900 dark:text-white text-sm">{tx.merchant}</p>
-                          <p className="text-xs text-slate-500 dark:text-slate-500 font-medium">{tx.date}</p>
-                        </div>
-                      </div>
-                      <div className={`font-black text-lg ${tx.type === 'earn' ? 'text-brand-secondary' : 'text-slate-400'}`}>
-                        {tx.points}
-                      </div>
+                  {isLoadingHistory ? (
+                    <div className="flex flex-col items-center justify-center py-10 text-slate-400">
+                      <Loader2 className="animate-spin mb-2" size={32} />
+                      <p className="text-sm font-medium">Cargando actividad...</p>
                     </div>
-                  ))}
+                  ) : transactions.length > 0 ? (
+                    transactions.slice(0, 5).map((tx) => (
+                      <div key={tx.id} className="flex items-center justify-between group hover:opacity-80 cursor-pointer">
+                        <div className="flex items-center gap-4">
+                          <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${tx.type === 'EARN' ? 'bg-brand-secondary/10 text-brand-secondary' : 'bg-red-100 dark:bg-red-950/30 text-red-600 dark:text-red-400'}`}>
+                            {tx.type === 'EARN' ? <CreditCard size={22} /> : <Gift size={22} />}
+                          </div>
+                          <div>
+                            <p className="font-bold text-slate-900 dark:text-white text-sm">
+                              {isMerchant ? `Cliente: ${tx.user_email}` : tx.merchant_name}
+                            </p>
+                            <p className="text-xs text-slate-500 dark:text-slate-500 font-medium">
+                              {formatDate(tx.timestamp)} • {tx.type === 'EARN' ? 'Acumulación' : 'Canje'}
+                            </p>
+                          </div>
+                        </div>
+                        <div className={`font-black text-lg ${tx.type === 'EARN' ? 'text-brand-secondary' : 'text-red-500'}`}>
+                          {tx.type === 'EARN' ? `+${tx.points_earned}` : `-${tx.points_redeemed}`}
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="flex flex-col items-center justify-center py-10 text-slate-400 bg-slate-50 dark:bg-slate-900/50 rounded-3xl border border-dashed border-slate-200 dark:border-slate-800">
+                      <History size={40} strokeWidth={1} className="mb-3 opacity-20" />
+                      <p className="text-sm font-bold">No hay actividad reciente</p>
+                      <p className="text-[10px] font-medium mt-1">Tus transacciones aparecerán aquí</p>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
 
             {/* Right Column: Discover */}
-            <div className="lg:col-span-5 space-y-8">
-              {/* Top Merchants / Promos */}
+            <div className="space-y-8">
+              {/* SECCIÓN MERCHANT: MIS COMERCIOS */}
+              {isMerchant && ownedMerchants.length > 0 && (
+                <div className="bg-white dark:bg-[#111827] rounded-[2.5rem] p-8 shadow-sm border border-slate-200 dark:border-slate-800">
+                  <div className="flex items-center gap-2 mb-8 font-bold text-xl text-slate-900 dark:text-white uppercase tracking-tight">
+                    <Store size={22} className="text-brand-primary" />
+                    Mis Comercios
+                  </div>
+                  <div className="grid grid-cols-1 gap-4">
+                    {ownedMerchants.map((merchant: any) => (
+                      <div key={merchant.id} className="relative group rounded-3xl overflow-hidden h-24 border border-slate-100 dark:border-slate-800 flex items-center p-4 gap-4">
+                        <div className="w-16 h-16 rounded-2xl bg-slate-100 dark:bg-slate-800 flex-shrink-0 overflow-hidden">
+                          {merchant.logo ? (
+                            <img src={merchant.logo} alt={merchant.name} className="w-full h-full object-cover" />
+                          ) : (
+                            <div className="w-full h-full flex items-center justify-center text-slate-400">
+                              <Store size={24} />
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-black text-slate-900 dark:text-white truncate">{merchant.name}</h4>
+                          <p className="text-xs text-slate-500 truncate">{merchant.address || 'Ubicación no disponible'}</p>
+                        </div>
+                        <button 
+                          onClick={() => {
+                            setSelectedMerchant(merchant);
+                            setIsPointModalOpen(true);
+                          }}
+                          className="w-10 h-10 rounded-full bg-brand-primary text-white flex items-center justify-center shadow-lg shadow-brand-primary/20 hover:scale-110 transition-transform active:scale-95"
+                          title="Registrar Puntos"
+                        >
+                          <Plus size={20} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* DESCUBRIR COMERCIOS */}
               <div className="bg-white dark:bg-[#111827] rounded-[2.5rem] p-8 shadow-sm border border-slate-200 dark:border-slate-800">
                 <div className="flex items-center gap-2 mb-8 font-bold text-xl text-slate-900 dark:text-white uppercase tracking-tight">
                   <Store size={22} className="text-brand-secondary" />
                   Descubrir
                 </div>
-                <div className="grid grid-cols-1 gap-6">
+                <div className="grid grid-cols-1 gap-4">
                   {partners.map((partner) => (
-                     <div key={partner.id} className="relative group rounded-3xl overflow-hidden h-32 cursor-pointer">
-                        <Image 
-                          src={partner.image} 
-                          alt={partner.name} 
-                          fill 
-                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                          className="object-cover group-hover:scale-110 transition-transform duration-700 brightness-75 group-hover:brightness-50" 
-                        />
-                        <div className="absolute inset-0 p-5 flex flex-col justify-end">
-                           <p className="text-white font-black text-base">{partner.name}</p>
-                           <p className="text-brand-secondary-light font-bold text-[11px] flex items-center gap-1">
-                              {partner.promo} <ChevronRight size={12} />
-                           </p>
-                        </div>
-                     </div>
+                    <div key={partner.id} className="relative group rounded-3xl overflow-hidden h-32 cursor-pointer">
+                      <img src={partner.image} alt={partner.name} className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-slate-900/40 to-transparent group-hover:via-slate-900/60 transition-all duration-500" />
+                      <div className="absolute bottom-6 left-6 right-6">
+                        <p className="text-white font-black text-lg leading-tight mb-1">{partner.name}</p>
+                        <p className="text-brand-gold font-bold text-[10px] uppercase tracking-wider">{partner.promo}</p>
+                      </div>
+                    </div>
                   ))}
                 </div>
                 <button className="w-full mt-6 py-4 rounded-2xl bg-slate-100 dark:bg-white/5 text-slate-900 dark:text-white font-bold text-sm hover:bg-brand-primary hover:text-white transition-all">Ver mapa de comercios</button>
@@ -226,9 +393,10 @@ export default function UserDashboard() {
           </div>
           
         </main>
+      </div>
 
-        {/* --- QR Modal --- */}
-        {isQrModalOpen && (
+      {/* --- QR Modal --- */}
+      {isQrModalOpen && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/90 backdrop-blur-md animate-in fade-in duration-300">
             <div 
               className="absolute inset-0" 
@@ -274,7 +442,12 @@ export default function UserDashboard() {
           </div>
         )}
 
-      </div>
+      <PointRegistrationModal
+        isOpen={isPointModalOpen}
+        onClose={() => setIsPointModalOpen(false)}
+        merchant={selectedMerchant}
+        onSuccess={handleRefresh}
+      />
     </div>
   );
 }

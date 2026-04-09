@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { 
   Store, 
@@ -12,9 +13,17 @@ import {
   TrendingUp,
   Users,
   Building2,
-  Loader2
+  Loader2,
+  Pencil,
+  Trash2,
+  UserPlus,
+  Ticket,
+  ChevronRight,
+  CircleDollarSign
 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
+import PointRegistrationModal from '@/components/comercios/PointRegistrationModal';
+import PointRedemptionModal from '@/components/comercios/PointRedemptionModal';
 
 interface Merchant {
   id: string;
@@ -22,14 +31,20 @@ interface Merchant {
   category: string;
   address: string;
   redemption_cap: string;
+  logo: string | null;
   created_at: string;
 }
 
 export default function MerchantListPage() {
   const { data: session } = useSession();
+  const router = useRouter();
   const [merchants, setMerchants] = useState<Merchant[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [isRedeemModalOpen, setIsRedeemModalOpen] = useState(false);
+  const [selectedRedeemMerchant, setSelectedRedeemMerchant] = useState<any>(null);
+  const [isPointModalOpen, setIsPointModalOpen] = useState(false);
+  const [selectedPointMerchant, setSelectedPointMerchant] = useState<any>(null);
 
   useEffect(() => {
     const fetchMerchants = async () => {
@@ -53,6 +68,11 @@ export default function MerchantListPage() {
 
     fetchMerchants();
   }, [session]);
+
+  const openRedeemModal = (merchant: Merchant) => {
+    setSelectedRedeemMerchant({ ...merchant, id: parseInt(merchant.id) });
+    setIsRedeemModalOpen(true);
+  };
 
   const filteredMerchants = merchants.filter(m => 
     m.name.toLowerCase().includes(searchTerm.toLowerCase())
@@ -90,8 +110,8 @@ export default function MerchantListPage() {
 
           {/* Filters and Stats */}
           {merchants.length > 0 && (
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
-              <div className="md:col-span-2 relative">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12 items-stretch">
+              <div className="md:col-span-3 relative flex">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
                 <input 
                   type="text" 
@@ -102,23 +122,13 @@ export default function MerchantListPage() {
                 />
               </div>
               
-              <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 flex items-center gap-4 shadow-sm">
-                <div className="w-10 h-10 rounded-xl bg-orange-100 dark:bg-orange-950/30 text-orange-500 flex items-center justify-center">
+              <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 flex items-center gap-4 shadow-sm md:col-span-1 min-h-[60px]">
+                <div className="w-10 h-10 rounded-xl bg-orange-100 dark:bg-orange-950/30 text-orange-500 flex items-center justify-center shrink-0">
                   <Store size={20} />
                 </div>
-                <div>
-                  <p className="text-[10px] uppercase font-black text-slate-400 tracking-widest">Activos</p>
-                  <p className="text-xl font-black text-slate-900 dark:text-white">{merchants.length}</p>
-                </div>
-              </div>
-
-              <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 flex items-center gap-4 shadow-sm">
-                <div className="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-950/30 text-blue-500 flex items-center justify-center">
-                  <TrendingUp size={20} />
-                </div>
-                <div>
-                  <p className="text-[10px] uppercase font-black text-slate-400 tracking-widest">Nivel Red</p>
-                  <p className="text-xl font-black text-slate-900 dark:text-white">PRO</p>
+                <div className="flex flex-col justify-center">
+                  <p className="text-[10px] uppercase font-black text-slate-400 tracking-widest leading-none mb-1">Activos</p>
+                  <p className="text-xl font-black text-slate-900 dark:text-white leading-none">{merchants.length}</p>
                 </div>
               </div>
             </div>
@@ -128,21 +138,26 @@ export default function MerchantListPage() {
           {filteredMerchants.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {filteredMerchants.map((merchant) => (
-                <Link 
+                <div 
                   key={merchant.id}
-                  href={`/dashboard/comercios/${merchant.id}`}
-                  className="group bg-white dark:bg-[#111827] rounded-[2.5rem] p-8 border border-slate-200 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none hover:shadow-2xl hover:-translate-y-1 transition-all flex flex-col h-full overflow-hidden relative"
+                  className="group bg-white dark:bg-[#111827] rounded-[2.5rem] p-8 border border-slate-200 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-none transition-all flex flex-col h-full overflow-hidden relative"
                 >
                   {/* Decorative Gradient Overlay */}
                   <div className="absolute top-0 right-0 w-32 h-32 bg-brand-primary/5 rounded-bl-[100px] -mr-10 -mt-10 group-hover:scale-110 transition-transform" />
 
                   <div className="flex items-start justify-between mb-6 relative z-10">
-                    <div className="w-14 h-14 rounded-2xl bg-brand-primary/10 text-brand-primary flex items-center justify-center border-2 border-brand-primary/10 shadow-inner">
-                      <Store size={28} />
+                    <div className="w-16 h-16 rounded-2xl bg-brand-primary/10 text-brand-primary flex items-center justify-center overflow-hidden relative">
+                      {merchant.logo ? (
+                        <img src={merchant.logo} alt={merchant.name} className="w-full h-full object-cover" />
+                      ) : (
+                        <Store size={32} />
+                      )}
                     </div>
-                    <span className="text-[10px] font-black uppercase tracking-widest bg-emerald-100 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400 px-3 py-1 rounded-full">
-                      Activo
-                    </span>
+                    <div className="flex flex-col items-end gap-2">
+                      <span className="text-[10px] font-black uppercase tracking-widest bg-emerald-100 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400 px-3 py-1 rounded-full">
+                        Activo
+                      </span>
+                    </div>
                   </div>
 
                   <h3 className="text-2xl font-black text-slate-900 dark:text-white mb-2 leading-tight relative z-10">{merchant.name}</h3>
@@ -162,22 +177,50 @@ export default function MerchantListPage() {
                       <p className="text-xs font-medium italic">Tope de Canje: {merchant.redemption_cap}%</p>
                     </div>
                   </div>
-
-                  <div className="pt-6 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between mt-auto">
-                    <div className="flex items-center -space-x-2">
-                      <div className="w-8 h-8 rounded-full border-2 border-white dark:border-slate-900 bg-slate-100 dark:bg-slate-800 flex items-center justify-center overflow-hidden">
-                        <Users size={12} className="text-slate-400" />
-                      </div>
-                      <div className="w-8 h-8 rounded-full border-2 border-white dark:border-slate-900 bg-slate-200 dark:bg-slate-700 flex items-center justify-center text-[10px] font-bold text-slate-500">
-                        +0
-                      </div>
+                  <div className="pt-6 border-t border-slate-100 dark:border-slate-800 flex items-center justify-center mt-auto relative z-10">
+                    <div className="flex items-center gap-2">
+                      <button 
+                        onClick={(e) => { e.preventDefault(); router.push(`/dashboard/comercios/${merchant.id}`); }}
+                        className="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-brand-primary hover:bg-brand-primary/10 transition-all flex items-center justify-center"
+                        title="Editar"
+                      >
+                        <Pencil size={18} />
+                      </button>
+                      <button 
+                        onClick={(e) => e.preventDefault()}
+                        className="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-red-500 hover:bg-red-50 transition-all flex items-center justify-center"
+                        title="Eliminar"
+                      >
+                        <Trash2 size={18} />
+                      </button>
+                      <button 
+                        onClick={(e) => e.preventDefault()}
+                        className="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-blue-500 hover:bg-blue-50 transition-all flex items-center justify-center"
+                        title="Invitar"
+                      >
+                        <UserPlus size={18} />
+                      </button>
+                      <button 
+                        onClick={(e) => { e.preventDefault(); openRedeemModal(merchant); }}
+                        className="w-10 h-10 rounded-xl bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-emerald-500 hover:bg-emerald-50 transition-all flex items-center justify-center"
+                        title="Canjear"
+                      >
+                        <Ticket size={18} />
+                      </button>
+                      <button 
+                        onClick={(e) => { 
+                          e.preventDefault(); 
+                          setSelectedPointMerchant({ ...merchant, id: parseInt(merchant.id) }); 
+                          setIsPointModalOpen(true); 
+                        }}
+                        className="w-10 h-10 rounded-xl bg-brand-primary/10 text-brand-primary hover:text-white hover:bg-brand-primary transition-all flex items-center justify-center"
+                        title="Registrar Puntos"
+                      >
+                        <CircleDollarSign size={18} />
+                      </button>
                     </div>
-                    <button className="text-brand-primary font-black text-sm flex items-center gap-2 group-hover:gap-3 transition-all">
-                      Ver Detalles
-                      <ArrowRight size={18} />
-                    </button>
                   </div>
-                </Link>
+                </div>
               ))}
             </div>
           ) : (
@@ -200,6 +243,22 @@ export default function MerchantListPage() {
           )}
         </div>
       </main>
+
+      {selectedRedeemMerchant && (
+        <PointRedemptionModal
+          isOpen={isRedeemModalOpen}
+          onClose={() => setIsRedeemModalOpen(false)}
+          merchant={selectedRedeemMerchant}
+        />
+      )}
+
+      {selectedPointMerchant && (
+        <PointRegistrationModal
+          isOpen={isPointModalOpen}
+          onClose={() => setIsPointModalOpen(false)}
+          merchant={selectedPointMerchant}
+        />
+      )}
     </div>
   );
 }

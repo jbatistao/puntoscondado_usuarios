@@ -85,7 +85,7 @@ export default function Footer() {
               <li><Link href="/login" className="hover:text-brand-primary transition-colors">Ingresar</Link></li>
               <li><a href="#como-funciona" className="hover:text-brand-primary transition-colors">Cómo Funciona</a></li>
               <li><a href="#beneficios" className="hover:text-brand-primary transition-colors">Beneficios</a></li>
-              <li><a href="#comercios" className="hover:text-brand-primary transition-colors">Ver Comercios</a></li>
+              <li><Link href="/directorio" className="hover:text-brand-primary transition-colors">Directorio</Link></li>
             </ul>
           </div>
 

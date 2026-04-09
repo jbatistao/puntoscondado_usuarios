@@ -86,8 +86,8 @@ export default function CommunityListPage() {
           </div>
 
           {communities.length > 0 && (
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12">
-              <div className="md:col-span-2 relative">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12 items-stretch">
+              <div className="md:col-span-3 relative flex">
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={20} />
                 <input 
                   type="text" 
@@ -98,23 +98,13 @@ export default function CommunityListPage() {
                 />
               </div>
               
-              <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 flex items-center gap-4 shadow-sm">
-                <div className="w-10 h-10 rounded-xl bg-violet-100 dark:bg-violet-950/30 text-violet-500 flex items-center justify-center">
+              <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 flex items-center gap-4 shadow-sm md:col-span-1 min-h-[60px]">
+                <div className="w-10 h-10 rounded-xl bg-violet-100 dark:bg-violet-950/30 text-violet-500 flex items-center justify-center shrink-0">
                   <Building2 size={20} />
                 </div>
-                <div>
-                  <p className="text-[10px] uppercase font-black text-slate-400 tracking-widest">Activas</p>
+                <div className="flex flex-col justify-center">
+                  <p className="text-[10px] uppercase font-black text-slate-400 tracking-widest leading-none mb-1">Activas</p>
                   <p className="text-xl font-black text-slate-900 dark:text-white">{communities.length}</p>
-                </div>
-              </div>
-
-              <div className="bg-white dark:bg-slate-900 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 flex items-center gap-4 shadow-sm">
-                <div className="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-950/30 text-blue-500 flex items-center justify-center">
-                  <TrendingUp size={20} />
-                </div>
-                <div>
-                  <p className="text-[10px] uppercase font-black text-slate-400 tracking-widest">Nivel Red</p>
-                  <p className="text-xl font-black text-slate-900 dark:text-white">PH-GOLD</p>
                 </div>
               </div>
             </div>

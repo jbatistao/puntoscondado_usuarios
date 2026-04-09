@@ -27,7 +27,7 @@ export default function RegisterMerchantPage() {
 
   const [formData, setFormData] = useState({
     name: '',
-    redemption_cap: '25.00',
+    redemption_cap: '10',
     category: 'Restaurante',
     address: ''
   });
@@ -179,16 +179,15 @@ export default function RegisterMerchantPage() {
                     <input 
                       required
                       type="number"
-                      step="0.01"
-                      min="0"
-                      max="100"
+                      min="5"
+                      max="15"
                       className="w-full bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-800 rounded-2xl px-5 py-4 text-slate-900 dark:text-white font-bold focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary transition-all text-right pr-12"
                       value={formData.redemption_cap}
                       onChange={(e) => setFormData({...formData, redemption_cap: e.target.value})}
                     />
                     <span className="absolute right-5 top-1/2 -translate-y-1/2 font-black text-slate-400">%</span>
                   </div>
-                  <p className="text-[10px] text-slate-400 font-medium ml-1">Límite para puntos externos a tu local.</p>
+                  <p className="text-[10px] text-slate-400 font-medium ml-1">Límite para puntos externos (Permitido: 5% - 15%).</p>
                 </div>
               </div>
 
