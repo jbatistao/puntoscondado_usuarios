@@ -165,7 +165,7 @@ export default function CommunityListPage() {
               </div>
               <h2 className="text-3xl font-black text-slate-900 dark:text-white mb-4">Aún no hay comunidades</h2>
               <p className="text-slate-500 dark:text-slate-400 max-w-sm mx-auto mb-10 font-medium">
-                Próximamente podrás registrar tu P.H. o comunidad para centralizar beneficios residenciales.
+                Las comunidades se crean para otorgar una subida de nivel o beneficios especiales para los residentes del P.H. o residencial.
               </p>
             </div>
           )}

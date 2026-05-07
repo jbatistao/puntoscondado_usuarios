@@ -164,7 +164,7 @@ export default function MallListPage() {
               </div>
               <h2 className="text-3xl font-black text-slate-900 dark:text-white mb-4">Aún no hay malls registrados</h2>
               <p className="text-slate-500 dark:text-slate-400 max-w-sm mx-auto mb-10 font-medium">
-                Próximamente los centros comerciales podrán gestionar sus locales y promociones de red.
+                Los Malls se crean para que las compras recurrentes en sus comercios generen beneficios como acumulación acelerada o descuentos especiales.
               </p>
             </div>
           )}

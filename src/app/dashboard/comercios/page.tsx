@@ -19,7 +19,8 @@ import {
   UserPlus,
   Ticket,
   ChevronRight,
-  CircleDollarSign
+  CircleDollarSign,
+  Gift
 } from 'lucide-react';
 import Navbar from '@/components/Navbar';
 import PointRegistrationModal from '@/components/comercios/PointRegistrationModal';
@@ -210,6 +211,16 @@ export default function MerchantListPage() {
                       <button 
                         onClick={(e) => { 
                           e.preventDefault(); 
+                          router.push(`/dashboard/comercios/${merchant.id}/especiales`);
+                        }}
+                        className="w-10 h-10 rounded-xl bg-violet-50 dark:bg-violet-900/30 text-violet-500 hover:text-white hover:bg-violet-500 transition-all flex items-center justify-center"
+                        title="Funciones Especiales"
+                      >
+                        <Gift size={18} />
+                      </button>
+                      <button 
+                        onClick={(e) => { 
+                          e.preventDefault(); 
                           setSelectedPointMerchant({ ...merchant, id: parseInt(merchant.id) }); 
                           setIsPointModalOpen(true); 
                         }}
@@ -230,7 +241,7 @@ export default function MerchantListPage() {
               </div>
               <h2 className="text-3xl font-black text-slate-900 dark:text-white mb-4">Aún no tienes comercios</h2>
               <p className="text-slate-500 dark:text-slate-400 max-w-sm mx-auto mb-10 font-medium">
-                Registra tu primer negocio para empezar a ofrecer beneficios y fidelizar a tus clientes en Condado del Rey.
+                Los comercios se crean para que los usuarios consumidores acumulen puntos con sus compras y puedan canjear los mismos por recompensas.
               </p>
               <Link 
                 href="/dashboard/comercios/nuevo"
@@ -259,6 +270,7 @@ export default function MerchantListPage() {
           merchant={selectedPointMerchant}
         />
       )}
+
     </div>
   );
 }

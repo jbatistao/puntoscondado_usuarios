@@ -53,6 +53,16 @@ interface Merchant extends BaseEntity {
   user_points?: number;
 }
 
+interface Coupon {
+  id: string;
+  title: string;
+  description: string;
+  original_price: string;
+  offer_price_cash: string;
+  offer_price_points: number;
+  image?: string;
+}
+
 interface Community extends BaseEntity {
   total_units?: number;
 }
@@ -80,6 +90,8 @@ export default function DirectorioPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('Todos');
   const [selectedItem, setSelectedItem] = useState<BaseEntity | null>(null);
+  const [activeCoupons, setActiveCoupons] = useState<Coupon[]>([]);
+  const [loadingCoupons, setLoadingCoupons] = useState(false);
 
   const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://127.0.0.1:8000';
 
@@ -139,6 +151,29 @@ export default function DirectorioPage() {
       return matchesSearch && matchesCategory;
     });
   };
+
+  const fetchCoupons = async (merchantId: string) => {
+    setLoadingCoupons(true);
+    try {
+      const resp = await fetch(`${backendUrl}/api/rewards/coupons/?merchant_id=${merchantId}`);
+      if (resp.ok) {
+        const data = await resp.json();
+        setActiveCoupons(data);
+      }
+    } catch (error) {
+      console.error("Error fetching coupons:", error);
+    } finally {
+      setLoadingCoupons(false);
+    }
+  };
+
+  useEffect(() => {
+    if (selectedItem && activeTab === 'comercios') {
+      fetchCoupons(selectedItem.id);
+    } else {
+      setActiveCoupons([]);
+    }
+  }, [selectedItem, activeTab]);
 
   const filteredItems = getFilteredData();
 
@@ -374,6 +409,56 @@ export default function DirectorioPage() {
                 </div>
               </div>
             </div>
+
+            {/* Coupons Section */}
+            {activeTab === 'comercios' && (activeCoupons.length > 0 || loadingCoupons) && (
+              <div className="px-8 py-4">
+                <h4 className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-slate-400 mb-6 ml-2">
+                  <Ticket size={14} className="text-brand-primary" /> Ofertas Exclusivas
+                </h4>
+                
+                {loadingCoupons ? (
+                  <div className="flex items-center justify-center py-8">
+                    <Loader2 className="animate-spin text-brand-primary" size={24} />
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    {activeCoupons.map((coupon) => (
+                      <div key={coupon.id} className="group relative bg-[#F8FAFC] dark:bg-slate-950/50 rounded-3xl p-5 border border-slate-100 dark:border-slate-800 hover:border-brand-primary/30 transition-all">
+                        <div className="flex flex-col h-full">
+                          <div className="flex justify-between items-start mb-3">
+                            <h5 className="font-black text-slate-900 dark:text-white text-sm leading-tight group-hover:text-brand-primary transition-colors">
+                              {coupon.title}
+                            </h5>
+                            <span className="text-[9px] font-black bg-brand-secondary/10 text-brand-secondary px-2 py-1 rounded-lg uppercase">
+                              -{(100 - (Number(coupon.offer_price_cash) * 100 / Number(coupon.original_price))).toFixed(0)}% OFF
+                            </span>
+                          </div>
+                          
+                          <p className="text-[11px] text-slate-500 dark:text-slate-500 mb-4 line-clamp-2">
+                            {coupon.description}
+                          </p>
+                          
+                          <div className="mt-auto pt-3 border-t border-slate-200/50 dark:border-slate-800/50 flex items-center justify-between">
+                            <div className="flex flex-col">
+                              <span className="text-[9px] font-bold text-slate-400 line-through">${coupon.original_price}</span>
+                              <span className="text-sm font-black text-slate-900 dark:text-white">${coupon.offer_price_cash}</span>
+                            </div>
+                            <div className="text-right">
+                              <span className="text-[9px] font-bold text-slate-400 uppercase">O por</span>
+                              <div className="flex items-center gap-1 text-brand-primary">
+                                <span className="text-xs font-black">{coupon.offer_price_points.toLocaleString()}</span>
+                                <span className="text-[8px] font-black">PTS</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Description / Extra Info */}
             <div className="p-8 pt-4 space-y-8">
