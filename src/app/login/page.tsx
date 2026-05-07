@@ -5,7 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Mail, Lock, User, ArrowLeft, ArrowRight, Eye, EyeOff, Smartphone, AlertCircle, Loader2 } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { signIn } from 'next-auth/react';
+import { signIn, useSession } from 'next-auth/react';
 
 function LoginForm() {
   const router = useRouter();
@@ -13,9 +13,23 @@ function LoginForm() {
   const intent = searchParams.get('intent');
   
   const [isLogin, setIsLogin] = useState(true);
+  const { data: session, status } = useSession();
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+
+  React.useEffect(() => {
+    if (status === 'authenticated') {
+      const redirectMap: Record<string, string> = {
+        'comercio': '/dashboard/comercios/nuevo',
+        'comunidad': '/dashboard/comunidades/nuevo',
+        'mall': '/dashboard/malls/nuevo'
+      };
+      const targetPath = intent ? redirectMap[intent] || '/dashboard' : '/dashboard';
+      router.push(targetPath);
+    }
+  }, [status, intent, router]);
+
   const [formData, setFormData] = useState({
     nombre: '',
     email: '',
@@ -35,6 +49,17 @@ function LoginForm() {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
+  const handleAuthRedirect = () => {
+    const redirectMap: Record<string, string> = {
+      'comercio': '/dashboard/comercios/nuevo',
+      'comunidad': '/dashboard/comunidades/nuevo',
+      'mall': '/dashboard/malls/nuevo'
+    };
+    
+    const targetPath = intent ? redirectMap[intent] || '/dashboard' : '/dashboard';
+    router.push(targetPath);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -51,7 +76,7 @@ function LoginForm() {
         if (result?.error) {
           setError('Credenciales inválidas. Por favor intente de nuevo.');
         } else {
-          router.push('/dashboard');
+          handleAuthRedirect();
         }
       } catch {
         setError('Ocurrió un error inesperado. Intente más tarde.');
@@ -87,10 +112,20 @@ function LoginForm() {
         const data = await response.json();
 
         if (response.ok) {
-          setIsLogin(true);
-          setError(null);
-          // Optional: Add a success message
-          alert('¡Registro exitoso! Por favor verifica tu correo electrónico para activar tu cuenta.');
+          // Auto login after registration
+          const loginResult = await signIn('credentials', {
+            email: formData.email,
+            password: formData.password,
+            redirect: false,
+          });
+
+          if (loginResult?.error) {
+            // Fallback to manual login if auto-login fails for some reason
+            setIsLogin(true);
+            setError('Cuenta creada con éxito. Por favor ingresa ahora.');
+          } else {
+            handleAuthRedirect();
+          }
         } else {
           // Handle specific field errors from Django
           const errorMsg = data.email ? `Email: ${data.email[0]}` : 

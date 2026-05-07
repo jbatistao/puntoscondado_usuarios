@@ -23,6 +23,7 @@ import {
   Building2,
   LayoutGrid,
   Plus,
+  Minus,
   Users,
   TrendingUp,
   MapPin,
@@ -32,6 +33,9 @@ import {
 import { useSession, signOut } from 'next-auth/react';
 import Navbar from '@/components/Navbar';
 import PointRegistrationModal from '@/components/comercios/PointRegistrationModal';
+import WelcomeBonusDiscovery from '@/components/dashboard/WelcomeBonusDiscovery';
+import AcceleratedPointsList from '@/components/dashboard/AcceleratedPointsList';
+import FeaturedCoupons from '@/components/dashboard/FeaturedCoupons';
 
 export default function UserDashboard() {
   const { data: session } = useSession();
@@ -276,6 +280,43 @@ export default function UserDashboard() {
 
           </div>
 
+          {/* Welcome Bonus Section (Only for Consumers) */}
+          {isConsumer && (
+            <WelcomeBonusDiscovery onBonusClaimed={handleRefresh} />
+          )}
+
+          {isConsumer && (
+            <FeaturedCoupons />
+          )}
+
+          {isMerchant && (
+            <div className="mb-10 bg-white dark:bg-[#111827] rounded-[2.5rem] p-8 shadow-sm border border-slate-200 dark:border-slate-800 flex flex-col md:flex-row items-center justify-between gap-6">
+                <div className="flex items-center gap-4">
+                    <div className="w-14 h-14 rounded-2xl bg-brand-primary/10 text-brand-primary flex items-center justify-center">
+                        <Ticket size={28} />
+                    </div>
+                    <div>
+                        <h2 className="text-xl font-black text-slate-900 dark:text-white leading-tight">Gestión de Cupones</h2>
+                        <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Atrae más clientes con ofertas exclusivas.</p>
+                    </div>
+                </div>
+                <div className="flex items-center gap-2">
+                    <div className="bg-slate-50 dark:bg-slate-900 px-6 py-3 rounded-2xl border border-slate-100 dark:border-slate-800 flex flex-col items-center">
+                        <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Cupones Activos</span>
+                        <span className="text-2xl font-black text-slate-900 dark:text-white leading-none">
+                            {userData?.coupon_stats?.active_count || '...'}
+                        </span>
+                    </div>
+                    <Link 
+                        href="/dashboard/comercios"
+                        className="bg-brand-primary text-white px-6 py-4 rounded-2xl font-black text-sm hover:scale-[1.02] transition-all flex items-center gap-2"
+                    >
+                        Gestionar <ArrowRight size={18} />
+                    </Link>
+                </div>
+            </div>
+          )}
+
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             
             {/* Left Column: Activity */}
@@ -296,26 +337,48 @@ export default function UserDashboard() {
                       <p className="text-sm font-medium">Cargando actividad...</p>
                     </div>
                   ) : transactions.length > 0 ? (
-                    transactions.slice(0, 5).map((tx) => (
-                      <div key={tx.id} className="flex items-center justify-between group hover:opacity-80 cursor-pointer">
-                        <div className="flex items-center gap-4">
-                          <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${tx.type === 'EARN' ? 'bg-brand-secondary/10 text-brand-secondary' : 'bg-red-100 dark:bg-red-950/30 text-red-600 dark:text-red-400'}`}>
-                            {tx.type === 'EARN' ? <CreditCard size={22} /> : <Gift size={22} />}
+                    transactions.slice(0, 5).map((tx) => {
+                      const isEarn = tx.type === 'EARN';
+                      const isWelcome = tx.type === 'WELCOME_BONUS';
+                      const isRedeem = tx.type === 'REDEEM';
+                      
+                      return (
+                        <div key={tx.id} className="flex items-center justify-between group hover:opacity-80 cursor-pointer">
+                          <div className="flex items-center gap-4">
+                            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${
+                              isEarn ? 'bg-emerald-100 dark:bg-emerald-950/30 text-emerald-600 dark:text-emerald-400' : 
+                              isWelcome ? 'bg-violet-100 dark:bg-violet-950/30 text-violet-600 dark:text-violet-400' :
+                              'bg-red-100 dark:bg-red-950/30 text-red-600 dark:text-red-400'
+                            }`}>
+                              {isEarn && <Plus size={20} />}
+                              {isRedeem && <Minus size={20} />}
+                              {isWelcome && <Gift size={20} />}
+                            </div>
+                            <div>
+                              <p className="font-bold text-slate-900 dark:text-white text-sm">
+                                {isMerchant ? `Cliente: ${tx.user_email}` : tx.merchant_name}
+                              </p>
+                              <p className="text-xs text-slate-500 dark:text-slate-500 font-medium">
+                                {formatDate(tx.timestamp)} • {
+                                  isEarn ? 'Acumulación' : 
+                                  isWelcome ? 'Bono Bienvenida' : 
+                                  'Canje'
+                                }
+                              </p>
+                            </div>
                           </div>
-                          <div>
-                            <p className="font-bold text-slate-900 dark:text-white text-sm">
-                              {isMerchant ? `Cliente: ${tx.user_email}` : tx.merchant_name}
-                            </p>
-                            <p className="text-xs text-slate-500 dark:text-slate-500 font-medium">
-                              {formatDate(tx.timestamp)} • {tx.type === 'EARN' ? 'Acumulación' : 'Canje'}
-                            </p>
+                          <div className={`font-black text-lg ${
+                            isEarn ? 'text-emerald-500' : 
+                            isWelcome ? 'text-violet-500' : 
+                            'text-red-500'
+                          }`}>
+                            {isEarn && `+${tx.points_earned}`}
+                            {isWelcome && `+${tx.points_earned}`}
+                            {isRedeem && `-${tx.points_redeemed}`}
                           </div>
                         </div>
-                        <div className={`font-black text-lg ${tx.type === 'EARN' ? 'text-brand-secondary' : 'text-red-500'}`}>
-                          {tx.type === 'EARN' ? `+${tx.points_earned}` : `-${tx.points_redeemed}`}
-                        </div>
-                      </div>
-                    ))
+                      );
+                    })
                   ) : (
                     <div className="flex flex-col items-center justify-center py-10 text-slate-400 bg-slate-50 dark:bg-slate-900/50 rounded-3xl border border-dashed border-slate-200 dark:border-slate-800">
                       <History size={40} strokeWidth={1} className="mb-3 opacity-20" />
@@ -329,43 +392,9 @@ export default function UserDashboard() {
 
             {/* Right Column: Discover */}
             <div className="space-y-8">
-              {/* SECCIÓN MERCHANT: MIS COMERCIOS */}
-              {isMerchant && ownedMerchants.length > 0 && (
-                <div className="bg-white dark:bg-[#111827] rounded-[2.5rem] p-8 shadow-sm border border-slate-200 dark:border-slate-800">
-                  <div className="flex items-center gap-2 mb-8 font-bold text-xl text-slate-900 dark:text-white uppercase tracking-tight">
-                    <Store size={22} className="text-brand-primary" />
-                    Mis Comercios
-                  </div>
-                  <div className="grid grid-cols-1 gap-4">
-                    {ownedMerchants.map((merchant: any) => (
-                      <div key={merchant.id} className="relative group rounded-3xl overflow-hidden h-24 border border-slate-100 dark:border-slate-800 flex items-center p-4 gap-4">
-                        <div className="w-16 h-16 rounded-2xl bg-slate-100 dark:bg-slate-800 flex-shrink-0 overflow-hidden">
-                          {merchant.logo ? (
-                            <img src={merchant.logo} alt={merchant.name} className="w-full h-full object-cover" />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center text-slate-400">
-                              <Store size={24} />
-                            </div>
-                          )}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <h4 className="font-black text-slate-900 dark:text-white truncate">{merchant.name}</h4>
-                          <p className="text-xs text-slate-500 truncate">{merchant.address || 'Ubicación no disponible'}</p>
-                        </div>
-                        <button 
-                          onClick={() => {
-                            setSelectedMerchant(merchant);
-                            setIsPointModalOpen(true);
-                          }}
-                          className="w-10 h-10 rounded-full bg-brand-primary text-white flex items-center justify-center shadow-lg shadow-brand-primary/20 hover:scale-110 transition-transform active:scale-95"
-                          title="Registrar Puntos"
-                        >
-                          <Plus size={20} />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+              {/* ACCELERATED POINTS SECTION */}
+              {isConsumer && (
+                <AcceleratedPointsList />
               )}
 
               {/* DESCUBRIR COMERCIOS */}

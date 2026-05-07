@@ -12,7 +12,9 @@ import {
   ArrowRight,
   User as UserIcon,
   Store,
-  ChevronRight
+  ChevronRight,
+  Ticket,
+  Percent
 } from 'lucide-react';
 import { useSession } from 'next-auth/react';
 
@@ -20,7 +22,7 @@ interface PointRegistrationModalProps {
   isOpen: boolean;
   onClose: () => void;
   merchant: {
-    id: number;
+    id: string | number;
     name: string;
   } | null;
   onSuccess?: () => void;
@@ -36,6 +38,9 @@ export default function PointRegistrationModal({ isOpen, onClose, merchant, onSu
   const [customerInfo, setCustomerInfo] = useState<{name: string, points?: number} | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [coupons, setCoupons] = useState<any[]>([]);
+  const [selectedCoupon, setSelectedCoupon] = useState<any | null>(null);
+  const [actionType, setActionType] = useState<'EARN' | 'REDEEM'>('EARN');
   
   const scannerRef = useRef<Html5Qrcode | null>(null);
   const regionId = "merchant-qr-reader";
@@ -46,7 +51,24 @@ export default function PointRegistrationModal({ isOpen, onClose, merchant, onSu
     } else {
       stopScanner();
     }
-  }, [step, isOpen]);
+    
+    if (isOpen && merchant?.id) {
+      fetchCoupons();
+    }
+  }, [step, isOpen, merchant?.id]);
+
+  const fetchCoupons = async () => {
+    if (!merchant?.id) return;
+    try {
+      const resp = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000'}/api/rewards/coupons/?merchant_id=${merchant.id}`);
+      if (resp.ok) {
+        const data = await resp.json();
+        setCoupons(data);
+      }
+    } catch (err) {
+      console.error("Error fetching coupons:", err);
+    }
+  };
 
   const startScanner = async () => {
     try {
@@ -105,10 +127,11 @@ export default function PointRegistrationModal({ isOpen, onClose, merchant, onSu
           'Authorization': `Bearer ${(session as any)?.user?.accessToken}`
         },
         body: JSON.stringify({
-          type: 'EARN',
+          type: actionType,
           merchant_id: merchant.id,
           amount_cash: amount,
-          user_token: userToken
+          user_token: userToken,
+          coupon_id: selectedCoupon?.id
         })
       });
       
@@ -141,6 +164,8 @@ export default function PointRegistrationModal({ isOpen, onClose, merchant, onSu
       setUserToken('');
       setCustomerInfo(null);
       setError(null);
+      setSelectedCoupon(null);
+      setActionType('EARN');
     }, 300);
   };
 
@@ -195,21 +220,79 @@ export default function PointRegistrationModal({ isOpen, onClose, merchant, onSu
                 <input 
                   type="number" 
                   value={amount}
-                  onChange={(e) => setAmount(e.target.value)}
+                  onChange={(e) => {
+                    setAmount(e.target.value);
+                    if (e.target.value) setSelectedCoupon(null);
+                  }}
                   placeholder="0.00"
                   className="w-full bg-slate-50 dark:bg-slate-800/50 border-2 border-slate-100 dark:border-slate-800 rounded-3xl py-6 pl-12 pr-6 text-3xl font-black focus:border-brand-primary outline-none transition-all placeholder:text-slate-300 text-slate-900 dark:text-white"
                   autoFocus
                 />
               </div>
 
-              <button 
-                onClick={() => amount && setStep('scan')}
-                disabled={!amount}
-                className="w-full py-5 rounded-3xl bg-brand-primary text-white font-black text-base shadow-xl shadow-brand-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:hover:scale-100"
-              >
-                Siguiente
-                <ArrowRight size={20} />
-              </button>
+              {/* Coupons List */}
+              {coupons.length > 0 && (
+                <div className="space-y-4">
+                  <h5 className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2 px-2">
+                    <Ticket size={12} className="text-brand-primary" /> Aplicar Oferta
+                  </h5>
+                  <div className="grid grid-cols-1 gap-2 max-h-[160px] overflow-y-auto pr-2 custom-scrollbar">
+                    {coupons.map((coupon) => (
+                      <div 
+                        key={coupon.id}
+                        onClick={() => {
+                            setSelectedCoupon(coupon);
+                            setAmount('');
+                        }}
+                        className={`p-4 rounded-2xl border-2 transition-all cursor-pointer ${
+                          selectedCoupon?.id === coupon.id 
+                            ? 'border-brand-primary bg-brand-primary/5 ring-4 ring-brand-primary/10' 
+                            : 'border-slate-100 dark:border-slate-800 bg-white dark:bg-slate-900 hover:border-slate-200 dark:hover:border-slate-700'
+                        }`}
+                      >
+                        <div className="flex justify-between items-center mb-1">
+                          <span className="text-xs font-black text-slate-900 dark:text-white truncate max-w-[150px]">{coupon.title}</span>
+                          <span className="text-[9px] font-black bg-brand-secondary/10 text-brand-secondary px-2 py-0.5 rounded-full uppercase">Oferta</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-[10px] font-bold text-slate-500">${coupon.offer_price_cash} cash</span>
+                          <span className="text-[10px] font-black text-brand-primary">{coupon.offer_price_points} PTS</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {selectedCoupon && (
+                <div className="flex gap-2">
+                  <button 
+                    onClick={() => { setActionType('EARN'); setStep('scan'); }}
+                    className="flex-1 py-4 rounded-2xl bg-white dark:bg-slate-900 border-2 border-emerald-500 text-emerald-500 font-black text-xs flex flex-col items-center gap-1 hover:bg-emerald-500 hover:text-white transition-all shadow-lg shadow-emerald-500/10"
+                  >
+                    <Percent size={18} />
+                    Pago en Cash
+                  </button>
+                  <button 
+                    onClick={() => { setActionType('REDEEM'); setStep('scan'); }}
+                    className="flex-1 py-4 rounded-2xl bg-white dark:bg-slate-900 border-2 border-brand-primary text-brand-primary font-black text-xs flex flex-col items-center gap-1 hover:bg-brand-primary hover:text-white transition-all shadow-lg shadow-brand-primary/10"
+                  >
+                    <Ticket size={18} />
+                    Pago con Puntos
+                  </button>
+                </div>
+              )}
+
+              {!selectedCoupon && (
+                <button 
+                  onClick={() => amount && setStep('scan')}
+                  disabled={!amount}
+                  className="w-full py-5 rounded-3xl bg-brand-primary text-white font-black text-base shadow-xl shadow-brand-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:hover:scale-100"
+                >
+                  Siguiente
+                  <ArrowRight size={20} />
+                </button>
+              )}
             </div>
           )}
 
@@ -253,9 +336,21 @@ export default function PointRegistrationModal({ isOpen, onClose, merchant, onSu
 
               <div className="bg-slate-50 dark:bg-slate-800/50 p-6 rounded-3xl border border-slate-100 dark:border-slate-800 space-y-4">
                 <div className="flex justify-between items-center">
-                  <span className="text-[10px] font-black uppercase text-slate-400">Total Compra</span>
-                  <span className="text-xl font-black text-emerald-500">${amount}</span>
+                  <span className="text-[10px] font-black uppercase text-slate-400">
+                    {selectedCoupon ? (actionType === 'REDEEM' ? 'Puntos a Canjear' : 'Monto de Oferta') : 'Total Compra'}
+                  </span>
+                  <span className={`text-xl font-black ${actionType === 'REDEEM' ? 'text-brand-primary' : 'text-emerald-500'}`}>
+                    {selectedCoupon 
+                      ? (actionType === 'REDEEM' ? `${selectedCoupon.offer_price_points} PTS` : `$${selectedCoupon.offer_price_cash}`) 
+                      : `$${amount}`}
+                  </span>
                 </div>
+                {selectedCoupon && (
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[9px] font-black uppercase text-slate-400">Oferta Aplicada</span>
+                    <span className="text-xs font-bold text-slate-900 dark:text-white">{selectedCoupon.title}</span>
+                  </div>
+                )}
                 <div className="h-px bg-slate-100 dark:bg-slate-800" />
                 <div className="flex justify-between items-center">
                   <span className="text-[10px] font-black uppercase text-slate-400">Cliente (ID)</span>
@@ -307,10 +402,12 @@ export default function PointRegistrationModal({ isOpen, onClose, merchant, onSu
                   </p>
                </div>
 
-                <div className="p-6 bg-slate-50 dark:bg-slate-800/50 rounded-3xl border border-slate-100 dark:border-slate-800 inline-block">
-                  <p className="text-[9px] font-black uppercase text-slate-400 tracking-widest mb-1">Puntos Generados</p>
-                  <p className="text-3xl font-black text-emerald-500">
-                    +{customerInfo?.points || Math.round(parseFloat(amount) * 100)} <span className="text-xs">PTS</span>
+                 <div className="p-6 bg-slate-50 dark:bg-slate-800/50 rounded-3xl border border-slate-100 dark:border-slate-800 inline-block">
+                  <p className="text-[9px] font-black uppercase text-slate-400 tracking-widest mb-1">
+                    {actionType === 'REDEEM' ? 'Puntos Canjeados' : 'Puntos Generados'}
+                  </p>
+                  <p className={`text-3xl font-black ${actionType === 'REDEEM' ? 'text-red-500' : 'text-emerald-500'}`}>
+                    {actionType === 'REDEEM' ? '-' : '+'}{customerInfo?.points || (selectedCoupon ? (actionType === 'REDEEM' ? selectedCoupon.offer_price_points : '...') : Math.round(parseFloat(amount) * 100))} <span className="text-xs">PTS</span>
                   </p>
                </div>
 

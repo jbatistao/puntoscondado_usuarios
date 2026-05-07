@@ -113,8 +113,8 @@ export default function Navbar() {
       ];
 
   const icons = [
-    { id: 'comercios', title: 'Comercios', href: '/comercios', icon: Store, bg: 'bg-emerald-200', hover: 'hover:bg-emerald-300', border: 'border-emerald-300/50' },
     { id: 'usuarios', title: 'Usuarios', href: '/', icon: Smile, bg: 'bg-violet-200', hover: 'hover:bg-violet-300', border: 'border-violet-300/50' },
+    { id: 'comercios', title: 'Comercios', href: '/comercios', icon: Store, bg: 'bg-emerald-200', hover: 'hover:bg-emerald-300', border: 'border-emerald-300/50' },
     { id: 'comunidades', title: 'Comunidades', href: '/comunidades', icon: Building2, bg: 'bg-amber-200', hover: 'hover:bg-amber-300', border: 'border-amber-300/50' },
     { id: 'malls', title: 'Centros Comerciales', href: '/malls', icon: LayoutGrid, bg: 'bg-sky-200', hover: 'hover:bg-sky-300', border: 'border-sky-300/50' },
   ];
@@ -123,6 +123,7 @@ export default function Navbar() {
 
   const profileMenuItems = [
     { id: 'home', icon: Home, label: 'Inicio', href: '/dashboard' },
+    { id: 'obsequios', icon: Gift, label: 'Obsequios', href: '/dashboard/obsequios' },
     { id: 'history', icon: History, label: 'Actividad', href: '/dashboard' },
     { id: 'rewards', icon: Gift, label: 'Premios', href: '/dashboard' },
     { id: 'wallet', icon: Wallet, label: 'Billetera', href: '/dashboard' },
@@ -136,10 +137,11 @@ export default function Navbar() {
     { id: 'malls', icon: LayoutGrid, label: 'Malls', href: '/dashboard/malls' },
   ];
 
-  const authNavLinks = [
-    { name: 'Comercios', href: '/dashboard/comercios', icon: Store },
-    { name: 'Comunidades', href: '/comunidades', icon: Building2 },
-    { name: 'Malls', href: '/malls', icon: LayoutGrid },
+  const authIcons = [
+    { id: 'usuarios', title: 'Dashboard', href: '/dashboard', icon: Smile, bg: 'bg-violet-200', hover: 'hover:bg-violet-300', border: 'border-violet-300/50' },
+    { id: 'comercios', title: 'Mis Comercios', href: '/dashboard/comercios', icon: Store, bg: 'bg-emerald-200', hover: 'hover:bg-emerald-300', border: 'border-emerald-300/50' },
+    { id: 'comunidades', title: 'Comunidades', href: '/dashboard/comunidades', icon: Building2, bg: 'bg-amber-200', hover: 'hover:bg-amber-300', border: 'border-amber-300/50' },
+    { id: 'malls', title: 'Malls', href: '/dashboard/malls', icon: LayoutGrid, bg: 'bg-sky-200', hover: 'hover:bg-sky-300', border: 'border-sky-300/50' },
   ];
 
   const avatarSrc = `https://i.pravatar.cc/150?u=${session?.user?.email || 'user'}`;
@@ -185,86 +187,86 @@ export default function Navbar() {
               <div className="flex items-center space-x-4 ml-4">
                 {/* Public page CTA (always shown on public pages) */}
                 {showPublicNav && (
-                  <>
-                    <Link
-                      href={
-                        isAuthenticated
-                          ? '/dashboard'
-                          : `${isComercios ? '/login?intent=comercio' : isComunidades ? '/login?intent=comunidad' : isMalls ? '/login?intent=mall' : '/login'}`
-                      }
-                      className="bg-brand-primary hover:bg-brand-primary-hover text-white px-6 py-2.5 rounded-full font-bold transition-all shadow-lg hover:scale-105 active:scale-95 flex items-center gap-2"
-                    >
-                      {isAuthenticated
-                        ? 'Ir al Dashboard'
-                        : isComercios
-                        ? 'Registrar mi Comercio'
-                        : isComunidades
-                        ? 'Registrar PH'
-                        : isMalls
-                        ? 'Registrar Mall'
-                        : 'Acceder'}
-                    </Link>
-                    <div className="flex items-center space-x-2 pl-2 border-l border-gray-200 dark:border-gray-700">
-                      {visibleIcons.map((icon) => (
-                        <a
-                          key={icon.id}
-                          href={icon.href}
-                          title={icon.title}
-                          className={`w-[38px] h-[38px] rounded-xl ${icon.bg} ${icon.hover} transition-colors flex items-center justify-center text-gray-800 shadow-sm border ${icon.border}`}
-                        >
-                          <icon.icon size={20} strokeWidth={2} />
-                        </a>
-                      ))}
-                    </div>
-                  </>
+                  <Link
+                    href={
+                      isAuthenticated
+                        ? '/dashboard'
+                        : `${isComercios ? '/login?intent=comercio' : isComunidades ? '/login?intent=comunidad' : isMalls ? '/login?intent=mall' : '/login'}`
+                    }
+                    className="bg-brand-primary hover:bg-brand-primary-hover text-white px-6 py-2.5 rounded-full font-bold transition-all shadow-lg hover:scale-105 active:scale-95 flex items-center gap-2"
+                  >
+                    {isAuthenticated
+                      ? 'Ir al Dashboard'
+                      : isComercios
+                      ? 'Registrar mi Comercio'
+                      : isComunidades
+                      ? 'Registrar PH'
+                      : isMalls
+                      ? 'Registrar Mall'
+                      : 'Acceder'}
+                  </Link>
                 )}
 
                 {/* ── Desktop profile dropdown (only on protected pages) ── */}
                 {showAuthNav && (
-                  <div ref={desktopMenuRef} className="relative" style={{ zIndex: 51 }}>
-                    {/* Avatar trigger */}
-                    <button
-                      onClick={() => setIsProfileOpen((v) => !v)}
-                      className="flex items-center gap-3 p-1.5 rounded-2xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-all border border-transparent hover:border-slate-200 dark:hover:border-slate-700"
-                    >
-                      <div className="w-10 h-10 rounded-xl overflow-hidden shadow-md border-2 border-brand-primary/20 relative">
-                        <Image src={avatarSrc} alt="User" fill style={{ objectFit: 'cover' }} />
-                      </div>
-                      <div className="hidden lg:block text-left pr-2">
-                        <p className="text-xs font-bold text-slate-900 dark:text-white leading-tight">
-                          {session?.user?.name || 'Usuario'}
-                        </p>
-                        <p className="text-[9px] uppercase tracking-wider font-bold text-brand-gold">Miembro Gold</p>
-                      </div>
-                    </button>
+                  <div className="flex items-center gap-4">
+                    {/* Quick Access Icons for Auth Users */}
+                    <div className="hidden sm:flex items-center space-x-2 pr-4 border-r border-slate-200 dark:border-slate-800">
+                      {authIcons.map((icon) => (
+                        <Link
+                          key={icon.id}
+                          href={icon.href}
+                          title={icon.title}
+                          className={`w-[38px] h-[38px] rounded-xl ${icon.bg} ${icon.hover} transition-all flex items-center justify-center text-gray-800 shadow-sm border ${icon.border} hover:scale-110 active:scale-95`}
+                        >
+                          <icon.icon size={20} strokeWidth={2} />
+                        </Link>
+                      ))}
+                    </div>
 
-                    {/* Dropdown panel */}
-                    {isProfileOpen && (
-                      <div className="absolute right-0 mt-3 w-64 bg-white dark:bg-[#111827] rounded-[1.5rem] shadow-2xl border border-slate-200 dark:border-slate-800 py-2 overflow-hidden origin-top-right">
-                        <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-800 lg:hidden">
-                          <p className="text-sm font-bold text-slate-900 dark:text-white">
+                    <div ref={desktopMenuRef} className="relative" style={{ zIndex: 51 }}>
+                      {/* Avatar trigger */}
+                      <button
+                        onClick={() => setIsProfileOpen((v) => !v)}
+                        className="flex items-center gap-3 p-1.5 rounded-2xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-all border border-transparent hover:border-slate-200 dark:hover:border-slate-700"
+                      >
+                        <div className="w-10 h-10 rounded-xl overflow-hidden shadow-md border-2 border-brand-primary/20 relative">
+                          <Image src={avatarSrc} alt="User" fill style={{ objectFit: 'cover' }} />
+                        </div>
+                        <div className="hidden lg:block text-left pr-2">
+                          <p className="text-xs font-bold text-slate-900 dark:text-white leading-tight">
                             {session?.user?.name || 'Usuario'}
                           </p>
-                          <p className="text-[10px] uppercase font-bold text-brand-gold">Miembro Gold</p>
+                          <p className="text-[9px] uppercase tracking-wider font-bold text-brand-gold">Miembro Gold</p>
                         </div>
+                      </button>
 
-                        <div className="p-2 space-y-1">
-                          {profileMenuItems.map((item) => (
-                            <Link
-                              key={item.id}
-                              href={item.href}
-                              onClick={close}
-                              className="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/5 font-bold text-sm transition-colors"
-                            >
-                              <item.icon size={18} />
-                              {item.label}
-                            </Link>
-                          ))}
+                      {/* Dropdown panel */}
+                      {isProfileOpen && (
+                        <div className="absolute right-0 mt-3 w-64 bg-white dark:bg-[#111827] rounded-[1.5rem] shadow-2xl border border-slate-200 dark:border-slate-800 py-2 overflow-hidden origin-top-right">
+                          <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-800 lg:hidden">
+                            <p className="text-sm font-bold text-slate-900 dark:text-white">
+                              {session?.user?.name || 'Usuario'}
+                            </p>
+                            <p className="text-[10px] uppercase font-bold text-brand-gold">Miembro Gold</p>
+                          </div>
 
-                          {isConsumer && (
+                          <div className="p-2 space-y-1">
+                            {profileMenuItems.map((item) => (
+                              <Link
+                                key={item.id}
+                                href={item.href}
+                                onClick={close}
+                                className="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/5 font-bold text-sm transition-colors"
+                              >
+                                <item.icon size={18} />
+                                {item.label}
+                              </Link>
+                            ))}
+
                             <div className="pt-2 mt-2 border-t border-slate-50 dark:border-slate-800">
                               <div className="px-4 py-2 text-[9px] uppercase font-bold text-slate-400 tracking-widest">
-                                Afíliate
+                                Afiliaciones
                               </div>
                               {affiliateItems.map((item) => (
                                 <Link
@@ -278,20 +280,20 @@ export default function Navbar() {
                                 </Link>
                               ))}
                             </div>
-                          )}
-                        </div>
+                          </div>
 
-                        <div className="p-2 mt-1 border-t border-slate-100 dark:border-slate-800">
-                          <button
-                            onClick={handleLogout}
-                            className="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 font-bold text-sm transition-colors text-left"
-                          >
-                            <LogOut size={18} />
-                            Cerrar Sesión
-                          </button>
+                          <div className="p-2 mt-1 border-t border-slate-100 dark:border-slate-800">
+                            <button
+                              onClick={handleLogout}
+                              className="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 font-bold text-sm transition-colors text-left"
+                            >
+                              <LogOut size={18} />
+                              Cerrar Sesión
+                            </button>
+                          </div>
                         </div>
-                      </div>
-                    )}
+                      )}
+                    </div>
                   </div>
                 )}
               </div>
@@ -411,26 +413,24 @@ export default function Navbar() {
               ))}
             </div>
 
-            {isConsumer && (
-              <div className="px-4 py-2">
-                <div className="px-2 pb-2 text-[10px] uppercase font-bold text-slate-400 tracking-widest">
-                  Afiliaciones
-                </div>
-                <div className="grid grid-cols-1 gap-2">
-                  {affiliateItems.map((item) => (
-                    <Link
-                      key={item.id}
-                      href={item.href}
-                      onClick={close}
-                      className="flex items-center gap-3 p-4 rounded-2xl bg-brand-primary/5 text-brand-primary font-bold text-xs transition-all"
-                    >
-                      <item.icon size={20} />
-                      {item.label}
-                    </Link>
-                  ))}
-                </div>
+            <div className="px-4 py-2">
+              <div className="px-2 pb-2 text-[10px] uppercase font-bold text-slate-400 tracking-widest">
+                Afiliaciones
               </div>
-            )}
+              <div className="grid grid-cols-1 gap-2">
+                {affiliateItems.map((item) => (
+                  <Link
+                    key={item.id}
+                    href={item.href}
+                    onClick={close}
+                    className="flex items-center gap-3 p-4 rounded-2xl bg-brand-primary/5 text-brand-primary font-bold text-xs transition-all"
+                  >
+                    <item.icon size={20} />
+                    {item.label}
+                  </Link>
+                ))}
+              </div>
+            </div>
 
             <div className="p-4 pt-0">
               <button
