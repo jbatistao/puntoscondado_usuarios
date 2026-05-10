@@ -28,7 +28,9 @@ import {
   TrendingUp,
   MapPin,
   CircleDollarSign,
-  Info
+  Info,
+  Ticket,
+  ArrowRight
 } from 'lucide-react';
 import { useSession, signOut } from 'next-auth/react';
 import Navbar from '@/components/Navbar';

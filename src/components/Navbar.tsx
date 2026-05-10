@@ -76,11 +76,16 @@ export default function Navbar() {
     }
   };
 
+  const isDirectorio = pathname === '/directorio';
   const isComercios = pathname === '/comercios';
   const isComunidades = pathname === '/comunidades';
   const isMalls = pathname === '/malls';
 
-  const navLinks = isComercios
+  const navLinks = isDirectorio
+    ? [
+        { name: 'Directorio', href: '/directorio' },
+      ]
+    : isComercios
     ? [
         { name: 'Cómo Funciona', href: '#como-funciona-comercios' },
         { name: 'Beneficios', href: '#beneficios-comercios' },

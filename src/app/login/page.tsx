@@ -128,8 +128,8 @@ function LoginForm() {
           }
         } else {
           // Handle specific field errors from Django
-          const errorMsg = data.email ? `Email: ${data.email[0]}` : 
-                          data.password ? `Password: ${data.password[0]}` :
+          const errorMsg = data.email ? data.email[0] : 
+                          data.password ? data.password[0] :
                           data.non_field_errors ? data.non_field_errors[0] : 
                           'Error en el registro. Verifique sus datos.';
           setError(errorMsg);

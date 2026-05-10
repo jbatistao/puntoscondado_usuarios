@@ -51,6 +51,7 @@ interface BaseEntity {
 interface Merchant extends BaseEntity {
   category: string;
   user_points?: number;
+  internal_domain?: string;
 }
 
 interface Coupon {
@@ -269,58 +270,75 @@ export default function DirectorioPage() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
               {filteredItems.map((item, index) => {
                 const Icon = getIcon((item as Merchant).category);
-                return (
-                  <button 
-                    key={item.id}
-                    onClick={() => setSelectedItem(item)}
-                    className="group bg-white dark:bg-slate-900 rounded-[2.5rem] p-1 border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-2xl transition-all duration-500 animate-in fade-in zoom-in-95 text-left"
-                    style={{ animationDelay: `${index * 50}ms` }}
-                  >
-                    <div className="bg-[#F8FAFC] dark:bg-slate-950 rounded-[2.2rem] p-6 h-full flex flex-col relative overflow-hidden">
-                      <div className="absolute -top-10 -right-10 w-24 h-24 bg-brand-primary/5 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700" />
-                      
-                      <div className="flex flex-col items-center text-center flex-grow">
-                        <div className="w-24 h-24 rounded-[2rem] bg-white dark:bg-slate-900 shadow-xl shadow-slate-200/50 dark:shadow-none flex items-center justify-center mb-6 p-1 group-hover:scale-110 transition-transform duration-500 relative">
-                          {item.logo ? (
-                            <div className="relative w-full h-full rounded-[1.8rem] overflow-hidden">
-                              <Image src={item.logo} alt={item.name} fill className="object-cover" />
-                            </div>
-                          ) : (
-                            <Icon size={40} className="text-slate-400 group-hover:text-brand-primary transition-colors duration-300" />
-                          )}
-                        </div>
-                        
-                        <h3 className="text-xl font-black text-slate-900 dark:text-white mb-2 leading-tight">
-                          {item.name}
-                        </h3>
+                const isMerchant = activeTab === 'comercios';
 
-                        {activeTab === 'comercios' && (
-                          <span className="text-[10px] font-black uppercase tracking-[0.2em] bg-brand-primary/10 text-brand-primary px-4 py-1.5 rounded-full mb-4">
-                            {(item as Merchant).category}
-                          </span>
-                        )}
-
-                        {activeTab === 'comercios' && (item as Merchant).user_points !== undefined && Number((item as Merchant).user_points) > 0 && (
-                          <div className="flex items-center gap-2 px-4 py-2 bg-emerald-500 rounded-2xl text-white mb-4 shadow-lg shadow-emerald-500/20 animate-in zoom-in duration-300">
-                             <Ticket size={14} className="animate-pulse" />
-                             <span className="text-xs font-black">{Number((item as Merchant).user_points).toLocaleString()} <span className="text-[9px] opacity-80 uppercase">PTS</span></span>
+                const cardContent = (
+                  <div className="bg-[#F8FAFC] dark:bg-slate-950 rounded-[2.2rem] p-6 h-full flex flex-col relative overflow-hidden w-full">
+                    <div className="absolute -top-10 -right-10 w-24 h-24 bg-brand-primary/5 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700" />
+                    
+                    <div className="flex flex-col items-center text-center flex-grow">
+                      <div className="w-24 h-24 rounded-[2rem] bg-white dark:bg-slate-900 shadow-xl shadow-slate-200/50 dark:shadow-none flex items-center justify-center mb-6 p-1 group-hover:scale-110 transition-transform duration-500 relative">
+                        {item.logo ? (
+                          <div className="relative w-full h-full rounded-[1.8rem] overflow-hidden">
+                            <Image src={item.logo} alt={item.name} fill className="object-cover" />
                           </div>
+                        ) : (
+                          <Icon size={40} className="text-slate-400 group-hover:text-brand-primary transition-colors duration-300" />
                         )}
+                      </div>
+                      
+                      <h3 className="text-xl font-black text-slate-900 dark:text-white mb-2 leading-tight">
+                        {item.name}
+                      </h3>
 
+                      {activeTab === 'comercios' && (
+                        <span className="text-[10px] font-black uppercase tracking-[0.2em] bg-brand-primary/10 text-brand-primary px-4 py-1.5 rounded-full mb-4">
+                          {(item as Merchant).category}
+                        </span>
+                      )}
 
-
-                        {activeTab !== 'comercios' && item.description && (
-                          <p className="text-sm text-slate-500 dark:text-slate-400 mb-4 line-clamp-2 px-4 italic">
-                            {item.description}
-                          </p>
-                        )}
-                        
-                        <div className="flex items-center gap-2 text-slate-500 dark:text-slate-500 text-xs font-medium mb-2 mt-auto">
-                          <MapPin size={14} className="text-brand-primary/60" />
-                          <span className="line-clamp-1">{item.address || 'Condado del Rey, Panamá'}</span>
+                      {activeTab === 'comercios' && (item as Merchant).user_points !== undefined && Number((item as Merchant).user_points) > 0 && (
+                        <div className="flex items-center gap-2 px-4 py-2 bg-emerald-500 rounded-2xl text-white mb-4 shadow-lg shadow-emerald-500/20 animate-in zoom-in duration-300">
+                           <Ticket size={14} className="animate-pulse" />
+                           <span className="text-xs font-black">{Number((item as Merchant).user_points).toLocaleString()} <span className="text-[9px] opacity-80 uppercase">PTS</span></span>
                         </div>
+                      )}
+
+                      {activeTab !== 'comercios' && item.description && (
+                        <p className="text-sm text-slate-500 dark:text-slate-400 mb-4 line-clamp-2 px-4 italic">
+                          {item.description}
+                        </p>
+                      )}
+                      
+                      <div className="flex items-center gap-2 text-slate-500 dark:text-slate-500 text-xs font-medium mb-2 mt-auto">
+                        <MapPin size={14} className="text-brand-primary/60" />
+                        <span className="line-clamp-1">{item.address || 'Condado del Rey, Panamá'}</span>
                       </div>
                     </div>
+                  </div>
+                );
+
+                if (isMerchant) {
+                  return (
+                    <Link
+                      key={item.id}
+                      href={`/directorio/${(item as Merchant).internal_domain || item.id}`}
+                      className="group bg-white dark:bg-slate-900 rounded-[2.5rem] p-1 border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-2xl transition-all duration-500 animate-in fade-in zoom-in-95 text-left flex flex-col"
+                      style={{ animationDelay: `${index * 50}ms` }}
+                    >
+                      {cardContent}
+                    </Link>
+                  );
+                }
+
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => setSelectedItem(item)}
+                    className="group bg-white dark:bg-slate-900 rounded-[2.5rem] p-1 border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-2xl transition-all duration-500 animate-in fade-in zoom-in-95 text-left flex flex-col w-full"
+                    style={{ animationDelay: `${index * 50}ms` }}
+                  >
+                    {cardContent}
                   </button>
                 );
               })}
