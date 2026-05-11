@@ -111,6 +111,15 @@ interface MerchantData {
   custom_links?: any[];
   extra_contacts?: any[];
   visible_contacts?: string[];
+  custom_bg_color?: string;
+  custom_bg_color_end?: string;
+  custom_is_gradient?: boolean;
+  custom_bg_type?: 'gradient' | 'solid' | 'image';
+  custom_bg_image?: string;
+  custom_text_color?: string;
+  custom_icon_color?: string;
+  custom_bio_bg?: string;
+  show_address?: boolean;
 }
 
 interface ThemePreset {
@@ -125,6 +134,7 @@ interface ThemePreset {
   footerLabelClass: string;
   footerBadgeClass: string;
   borderClass: string;
+  isCustom?: boolean;
 }
 
 const THEME_PRESETS: ThemePreset[] = [
@@ -192,6 +202,20 @@ const THEME_PRESETS: ThemePreset[] = [
     footerLabelClass: 'text-orange-800/50',
     footerBadgeClass: 'text-orange-900 bg-white/40 border-orange-200/50',
     borderClass: 'border-orange-950/10'
+  },
+  {
+    id: 'custom',
+    name: '🎨 Personalizado',
+    class: '',
+    buttonClass: 'bg-white/20 hover:bg-white/30 border-white/30 text-white shadow-lg',
+    textClass: 'text-white/90',
+    titleClass: 'text-white',
+    categoryClass: 'text-white/80 bg-white/10 border-white/10',
+    iconClass: 'bg-white/10 border-white/20 text-white hover:bg-white/20',
+    footerLabelClass: 'text-white/40',
+    footerBadgeClass: 'text-white/80 bg-white/10 border-white/10',
+    borderClass: 'border-white/10',
+    isCustom: true
   }
 ];
 
@@ -339,7 +363,34 @@ export default function MerchantLinktreePage({ params }: PageProps) {
     return true; // Por defecto visible
   })();
 
-  const preset = merchant.theme_preset ? (THEME_PRESETS.find(t => t.id === merchant.theme_preset) || THEME_PRESETS[0]) : null;
+  const preset = (() => {
+    if (!merchant.theme_preset) return null;
+    const foundPreset = THEME_PRESETS.find(t => t.id === merchant.theme_preset) || THEME_PRESETS[0];
+    if (foundPreset.id === 'custom') {
+      const bgType = merchant.custom_bg_type || (merchant.custom_is_gradient === false ? 'solid' : 'gradient');
+      const customBgColor = merchant.custom_bg_color || '#6366F1';
+      const customBgColorEnd = merchant.custom_bg_color_end || '#8B5CF6';
+      
+      const bgClass = bgType === 'gradient'
+        ? `bg-gradient-to-b from-[${customBgColor}] to-[${customBgColorEnd}]`
+        : bgType === 'solid'
+          ? `bg-[${customBgColor}]`
+          : '';
+      return {
+        ...foundPreset,
+        class: bgClass,
+        textClass: 'text-white/90',
+        titleClass: 'text-white',
+        categoryClass: 'text-white/80 bg-white/10 border-white/10',
+        iconClass: 'bg-white/20 border-white/30 text-white hover:bg-white/30',
+        footerLabelClass: 'text-white/40',
+        footerBadgeClass: 'text-white/80 bg-white/10 border-white/10',
+        borderClass: 'border-white/10',
+        buttonClass: 'bg-white/20 hover:bg-white/30 border-white/30 text-white shadow-lg'
+      };
+    }
+    return foundPreset;
+  })();
 
   const containerClass = preset 
     ? `min-h-screen ${preset.class} flex flex-col justify-between text-white relative overflow-hidden`
@@ -362,8 +413,26 @@ export default function MerchantLinktreePage({ params }: PageProps) {
     ? "w-9 h-9 bg-white/10 hover:bg-white/25 border border-white/20 rounded-xl flex items-center justify-center text-white transition-all active:scale-90"
     : "w-9 h-9 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl flex items-center justify-center text-slate-500 hover:text-brand-primary hover:border-brand-primary transition-all active:scale-90";
 
+  const bgType = merchant.custom_bg_type || (merchant.custom_is_gradient === false ? 'solid' : 'gradient');
+  const customBgColor = merchant.custom_bg_color || '#6366F1';
+  const customBgColorEnd = merchant.custom_bg_color_end || '#8B5CF6';
+  const customBgImage = merchant.custom_bg_image || '';
+
   return (
-    <div className={containerClass}>
+    <div 
+      className={containerClass}
+      style={merchant.theme_preset === 'custom' ? (bgType === 'image' ? {
+        backgroundImage: `url(${customBgImage})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundAttachment: 'fixed',
+        backgroundColor: '#1a1a2e'
+      } : {
+        background: bgType === 'gradient'
+          ? `linear-gradient(to bottom, ${customBgColor}, ${customBgColorEnd})`
+          : customBgColor
+      }) : undefined}
+    >
       
       {/* Abstract Background Blobs - Only if no preset theme to prevent interference */}
       {!preset && (
@@ -383,6 +452,7 @@ export default function MerchantLinktreePage({ params }: PageProps) {
             <Link 
               href="/directorio" 
               className={backLinkClass}
+              style={merchant.theme_preset === 'custom' ? { color: merchant.custom_text_color } : undefined}
             >
               <ArrowLeft size={16} /> Directorio
             </Link>
@@ -390,6 +460,11 @@ export default function MerchantLinktreePage({ params }: PageProps) {
             <button 
               onClick={handleShare}
               className={shareBtnClass}
+              style={merchant.theme_preset === 'custom' ? {
+                color: merchant.custom_icon_color,
+                borderColor: merchant.custom_icon_color ? `${merchant.custom_icon_color}30` : undefined,
+                backgroundColor: merchant.custom_icon_color ? `${merchant.custom_icon_color}15` : undefined
+              } : undefined}
               title="Compartir enlace"
             >
               {copied ? <Check size={18} className="text-emerald-400" /> : <Share2 size={18} />}
@@ -401,7 +476,13 @@ export default function MerchantLinktreePage({ params }: PageProps) {
             /* PREVIEW-REPLICATED GLASS MINIMAL STYLE (NO WRAPPING CARD) */
             <div className="flex flex-col items-center text-center">
               {/* Merchant Logo */}
-              <div className="w-16 h-16 rounded-full bg-white/20 border-2 border-white/40 flex items-center justify-center overflow-hidden shrink-0 shadow-lg mt-4 mb-3 relative">
+              <div 
+                className="w-16 h-16 rounded-full bg-white/20 border-2 border-white/40 flex items-center justify-center overflow-hidden shrink-0 shadow-lg mt-4 mb-3 relative"
+                style={merchant.theme_preset === 'custom' ? {
+                  borderColor: merchant.custom_text_color ? `${merchant.custom_text_color}40` : undefined,
+                  backgroundColor: merchant.custom_text_color ? `${merchant.custom_text_color}20` : undefined
+                } : undefined}
+              >
                 {merchant.logo ? (
                   <Image 
                     src={merchant.logo.startsWith('http') ? merchant.logo : `${backendUrl}${merchant.logo}`} 
@@ -410,15 +491,25 @@ export default function MerchantLinktreePage({ params }: PageProps) {
                     className="object-cover animate-in fade-in zoom-in-95 duration-200" 
                   />
                 ) : (
-                  <Store size={32} className={preset.titleClass} />
+                  <Store size={32} className={preset.titleClass} style={merchant.theme_preset === 'custom' ? { color: merchant.custom_text_color } : undefined} />
                 )}
               </div>
 
               {/* Merchant Name & Category */}
-              <h1 className={`text-lg font-black leading-tight tracking-tight px-2 mb-1 ${preset.titleClass}`}>
+              <h1 
+                className={`text-lg font-black leading-tight tracking-tight px-2 mb-1 ${preset.titleClass}`}
+                style={merchant.theme_preset === 'custom' ? { color: merchant.custom_text_color } : undefined}
+              >
                 {merchant.name}
               </h1>
-              <span className={`text-[10px] font-black tracking-widest uppercase px-2.5 py-0.5 rounded-full border mb-4 inline-block ${preset.categoryClass}`}>
+              <span 
+                className={`text-[10px] font-black tracking-widest uppercase px-2.5 py-0.5 rounded-full border mb-4 inline-block ${preset.categoryClass}`}
+                style={merchant.theme_preset === 'custom' ? {
+                  color: merchant.custom_text_color,
+                  borderColor: merchant.custom_text_color ? `${merchant.custom_text_color}30` : undefined,
+                  backgroundColor: merchant.custom_text_color ? `${merchant.custom_text_color}15` : undefined
+                } : undefined}
+              >
                 {merchant.category}
               </span>
 
@@ -426,6 +517,13 @@ export default function MerchantLinktreePage({ params }: PageProps) {
               {isBioSelected && (merchant.bio || merchant.slogan || merchant.description) && (
                 <p 
                   className={`text-[11px] font-bold leading-relaxed px-3 mb-4 max-w-[240px] whitespace-pre-wrap ${preset.textClass}`}
+                  style={merchant.theme_preset === 'custom' ? {
+                    color: merchant.custom_text_color,
+                    backgroundColor: merchant.custom_bio_bg !== 'transparent' ? (merchant.custom_bio_bg || 'transparent') : undefined,
+                    padding: merchant.custom_bio_bg !== 'transparent' ? '12px' : '0 12px',
+                    borderRadius: merchant.custom_bio_bg !== 'transparent' ? '16px' : '0',
+                    border: merchant.custom_bio_bg !== 'transparent' ? '1px solid rgba(255, 255, 255, 0.1)' : 'none'
+                  } : undefined}
                   dangerouslySetInnerHTML={{ __html: merchant.bio || merchant.slogan || merchant.description || '' }}
                 />
               )}
@@ -444,6 +542,14 @@ export default function MerchantLinktreePage({ params }: PageProps) {
                     contacts.push({
                       type: 'waze',
                       value: `${merchant.latitude},${merchant.longitude}`
+                    });
+                  }
+                }
+                if (merchant?.address && merchant.address.trim() !== '') {
+                  if (!contacts.some((c: any) => c.type === 'address')) {
+                    contacts.push({
+                      type: 'address',
+                      value: merchant.address
                     });
                   }
                 }
@@ -483,7 +589,8 @@ export default function MerchantLinktreePage({ params }: PageProps) {
                   youtube:   <Youtube size={15} />,
                   tiktok:    <Tiktok size={15} />,
                   google_maps: <GoogleMapsIcon size={15} />,
-                  waze:        <WazeIcon size={15} />
+                  waze:        <WazeIcon size={15} />,
+                  address:     <MapPin size={15} />
                 };
 
                 const getContactHref = (type: string, val: string) => {
@@ -496,6 +603,7 @@ export default function MerchantLinktreePage({ params }: PageProps) {
                   if (type === 'twitter') return `https://twitter.com/${val}`;
                   if (type === 'google_maps') return `https://www.google.com/maps/search/?api=1&query=${val}`;
                   if (type === 'waze') return `https://waze.com/ul?ll=${val}&navigate=yes`;
+                  if (type === 'address') return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(val)}`;
                   return val.startsWith('http') ? val : `https://${val}`;
                 };
 
@@ -508,6 +616,11 @@ export default function MerchantLinktreePage({ params }: PageProps) {
                         target="_blank"
                         rel="noopener noreferrer"
                         className={`w-8 h-8 rounded-full flex items-center justify-center transition-all hover:scale-110 shadow-sm border ${preset.iconClass}`}
+                        style={merchant.theme_preset === 'custom' ? {
+                          color: merchant.custom_icon_color,
+                          borderColor: merchant.custom_icon_color ? `${merchant.custom_icon_color}30` : undefined,
+                          backgroundColor: merchant.custom_icon_color ? `${merchant.custom_icon_color}15` : undefined
+                        } : undefined}
                         title={c.value}
                       >
                         {ICON_MAP[c.type] ?? <Globe size={15} />}
@@ -518,10 +631,15 @@ export default function MerchantLinktreePage({ params }: PageProps) {
               })()}
 
               {/* Physical Address */}
-              <div className={`flex items-center justify-center gap-2 font-medium text-[11px] mt-1 max-w-[240px] relative z-10 leading-relaxed mx-auto ${preset.textClass}`}>
-                <MapPin size={14} className={mapIconClass} />
-                <span className="text-center line-clamp-2">{merchant.address || 'Condado del Rey, Ciudad de Panamá'}</span>
-              </div>
+              {merchant.show_address !== false && (
+                <div 
+                  className={`flex items-center justify-center gap-2 font-medium text-[11px] mt-1 max-w-[240px] relative z-10 leading-relaxed mx-auto ${preset.textClass}`}
+                  style={merchant.theme_preset === 'custom' ? { color: merchant.custom_text_color } : undefined}
+                >
+                  <MapPin size={14} className={mapIconClass} style={merchant.theme_preset === 'custom' ? { color: merchant.custom_icon_color } : undefined} />
+                  <span className="text-center line-clamp-2">{merchant.address || 'Condado del Rey, Ciudad de Panamá'}</span>
+                </div>
+              )}
             </div>
           ) : (
             /* STANDARD DEFAULT THEME (WITH CONTAINER CARD) */
@@ -564,10 +682,12 @@ export default function MerchantLinktreePage({ params }: PageProps) {
               )}
 
               {/* Physical Address */}
-              <div className="flex items-center gap-2 font-medium text-xs mt-4 max-w-xs relative z-10 leading-relaxed text-slate-500 dark:text-slate-400">
-                <MapPin size={16} className={mapIconClass} />
-                <span className="text-left line-clamp-2">{merchant.address || 'Condado del Rey, Ciudad de Panamá'}</span>
-              </div>
+              {merchant.show_address !== false && (
+                <div className="flex items-center gap-2 font-medium text-xs mt-4 max-w-xs relative z-10 leading-relaxed text-slate-500 dark:text-slate-400">
+                  <MapPin size={16} className={mapIconClass} />
+                  <span className="text-left line-clamp-2">{merchant.address || 'Condado del Rey, Ciudad de Panamá'}</span>
+                </div>
+              )}
             </div>
           )}
 
@@ -587,10 +707,15 @@ export default function MerchantLinktreePage({ params }: PageProps) {
                       ? `w-full flex items-center justify-between p-3 rounded-xl border font-bold text-xs tracking-wide cursor-pointer transition-all ${preset.buttonClass}`
                       : "w-full p-5 rounded-2xl font-bold flex items-center justify-between transition-all shadow-md active:scale-98 group border bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-800 dark:text-white hover:border-brand-primary hover:scale-[1.01]"
                     }
+                    style={merchant.theme_preset === 'custom' ? {
+                      color: merchant.custom_text_color,
+                      borderColor: merchant.custom_text_color ? `${merchant.custom_text_color}30` : undefined,
+                      backgroundColor: merchant.custom_text_color ? `${merchant.custom_text_color}15` : undefined
+                    } : undefined}
                   >
                     {preset ? (
                       <>
-                        <ButtonIcon size={14} className="shrink-0" />
+                        <ButtonIcon size={14} className="shrink-0" style={merchant.theme_preset === 'custom' ? { color: merchant.custom_icon_color } : undefined} />
                         <span className="flex-grow text-center px-2 truncate">{link.title}</span>
                         <div className="w-3.5 h-3.5 shrink-0" />
                       </>
@@ -620,10 +745,15 @@ export default function MerchantLinktreePage({ params }: PageProps) {
                       ? `w-full flex items-center justify-between p-3 rounded-xl border font-bold text-xs tracking-wide cursor-pointer transition-all ${preset.buttonClass}`
                       : "w-full p-5 rounded-2xl font-bold flex items-center justify-between transition-all shadow-md active:scale-98 group border bg-[#128C7E] hover:bg-[#075e54] text-white hover:scale-[1.01]"
                     }
+                    style={merchant.theme_preset === 'custom' ? {
+                      color: merchant.custom_text_color,
+                      borderColor: merchant.custom_text_color ? `${merchant.custom_text_color}30` : undefined,
+                      backgroundColor: merchant.custom_text_color ? `${merchant.custom_text_color}15` : undefined
+                    } : undefined}
                   >
                     {preset ? (
                       <>
-                        <MessageCircle size={14} className="shrink-0" />
+                        <MessageCircle size={14} className="shrink-0" style={merchant.theme_preset === 'custom' ? { color: merchant.custom_icon_color } : undefined} />
                         <span className="flex-grow text-center px-2 truncate">Contactar por WhatsApp</span>
                         <div className="w-3.5 h-3.5 shrink-0" />
                       </>
@@ -651,10 +781,15 @@ export default function MerchantLinktreePage({ params }: PageProps) {
                       ? `w-full flex items-center justify-between p-3 rounded-xl border font-bold text-xs tracking-wide cursor-pointer transition-all ${preset.buttonClass}`
                       : "w-full p-5 rounded-2xl font-bold flex items-center justify-between transition-all shadow-md active:scale-98 group border bg-gradient-to-r from-[#833ab4] via-[#fd1d1d] to-[#fcb045] hover:opacity-95 text-white hover:scale-[1.01]"
                     }
+                    style={merchant.theme_preset === 'custom' ? {
+                      color: merchant.custom_text_color,
+                      borderColor: merchant.custom_text_color ? `${merchant.custom_text_color}30` : undefined,
+                      backgroundColor: merchant.custom_text_color ? `${merchant.custom_text_color}15` : undefined
+                    } : undefined}
                   >
                     {preset ? (
                       <>
-                        <Instagram size={14} className="shrink-0" />
+                        <Instagram size={14} className="shrink-0" style={merchant.theme_preset === 'custom' ? { color: merchant.custom_icon_color } : undefined} />
                         <span className="flex-grow text-center px-2 truncate">Síguenos en Instagram</span>
                         <div className="w-3.5 h-3.5 shrink-0" />
                       </>
@@ -685,10 +820,15 @@ export default function MerchantLinktreePage({ params }: PageProps) {
                       ? `w-full flex items-center justify-between p-3 rounded-xl border font-bold text-xs tracking-wide cursor-pointer transition-all ${preset.buttonClass}`
                       : "w-full p-5 rounded-2xl font-bold flex items-center justify-between transition-all shadow-sm active:scale-98 group border bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-800 dark:text-white hover:border-brand-primary hover:scale-[1.01]"
                     }
+                    style={merchant.theme_preset === 'custom' ? {
+                      color: merchant.custom_text_color,
+                      borderColor: merchant.custom_text_color ? `${merchant.custom_text_color}30` : undefined,
+                      backgroundColor: merchant.custom_text_color ? `${merchant.custom_text_color}15` : undefined
+                    } : undefined}
                   >
                     {preset ? (
                       <>
-                        <Globe size={14} className="shrink-0" />
+                        <Globe size={14} className="shrink-0" style={merchant.theme_preset === 'custom' ? { color: merchant.custom_icon_color } : undefined} />
                         <span className="flex-grow text-center px-2 truncate">Sitio Web Oficial</span>
                         <div className="w-3.5 h-3.5 shrink-0" />
                       </>
@@ -714,10 +854,15 @@ export default function MerchantLinktreePage({ params }: PageProps) {
                       ? `w-full flex items-center justify-between p-3 rounded-xl border font-bold text-xs tracking-wide cursor-pointer transition-all ${preset.buttonClass}`
                       : "w-full p-5 rounded-2xl font-bold flex items-center justify-between transition-all shadow-sm active:scale-98 group border bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-800 dark:text-white hover:border-brand-secondary hover:scale-[1.01]"
                     }
+                    style={merchant.theme_preset === 'custom' ? {
+                      color: merchant.custom_text_color,
+                      borderColor: merchant.custom_text_color ? `${merchant.custom_text_color}30` : undefined,
+                      backgroundColor: merchant.custom_text_color ? `${merchant.custom_text_color}15` : undefined
+                    } : undefined}
                   >
                     {preset ? (
                       <>
-                        <Phone size={14} className="shrink-0" />
+                        <Phone size={14} className="shrink-0" style={merchant.theme_preset === 'custom' ? { color: merchant.custom_icon_color } : undefined} />
                         <span className="flex-grow text-center px-2 truncate">Llamar Directamente</span>
                         <div className="w-3.5 h-3.5 shrink-0" />
                       </>
@@ -744,8 +889,11 @@ export default function MerchantLinktreePage({ params }: PageProps) {
           {/* ── ACTIVE OFFERS / COUPONS SECTION ── */}
           {activeCoupons.length > 0 && (
             <div className="space-y-4 pt-4">
-              <h4 className={`text-[10px] font-black uppercase tracking-[0.2em] flex items-center gap-2 px-2 ${preset ? 'text-white/60' : 'text-slate-400'}`}>
-                <Ticket size={14} className={`animate-pulse ${preset ? 'text-white' : 'text-brand-primary'}`} /> Ofertas Activas del Comercio
+              <h4 
+                className={`text-[10px] font-black uppercase tracking-[0.2em] flex items-center gap-2 px-2 ${preset ? 'text-white/60' : 'text-slate-400'}`}
+                style={merchant.theme_preset === 'custom' ? { color: merchant.custom_text_color ? `${merchant.custom_text_color}a0` : undefined } : undefined}
+              >
+                <Ticket size={14} className={`animate-pulse ${preset ? 'text-white' : 'text-brand-primary'}`} style={merchant.theme_preset === 'custom' ? { color: merchant.custom_icon_color } : undefined} /> Ofertas Activas del Comercio
               </h4>
 
               <div className="space-y-4">
@@ -756,39 +904,87 @@ export default function MerchantLinktreePage({ params }: PageProps) {
                       ? "bg-white/10 backdrop-blur-md border border-white/20 text-white rounded-3xl p-6 shadow-sm hover:shadow-md transition-all relative overflow-hidden group"
                       : "bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm hover:shadow-md transition-all relative overflow-hidden group"
                     }
+                    style={merchant.theme_preset === 'custom' ? {
+                      borderColor: merchant.custom_text_color ? `${merchant.custom_text_color}30` : undefined,
+                      backgroundColor: merchant.custom_text_color ? `${merchant.custom_text_color}15` : undefined,
+                      color: merchant.custom_text_color
+                    } : undefined}
                   >
                     {/* Tiny punch hole styling like a real ticket */}
-                    <div className={preset
-                      ? "absolute left-0 top-1/2 -translate-y-1/2 -translate-x-3 w-6 h-6 rounded-full border-r border-white/20 bg-transparent backdrop-blur-xl"
-                      : "absolute left-0 top-1/2 -translate-y-1/2 -translate-x-3 w-6 h-6 rounded-full bg-[#F8FAFC] dark:bg-[#030712] border-r border-slate-200 dark:border-slate-800"
-                    } />
-                    <div className={preset
-                      ? "absolute right-0 top-1/2 -translate-y-1/2 translate-x-3 w-6 h-6 rounded-full border-l border-white/20 bg-transparent backdrop-blur-xl"
-                      : "absolute right-0 top-1/2 -translate-y-1/2 translate-x-3 w-6 h-6 rounded-full bg-[#F8FAFC] dark:bg-[#030712] border-l border-slate-200 dark:border-slate-800"
-                    } />
+                    <div 
+                      className={preset
+                        ? "absolute left-0 top-1/2 -translate-y-1/2 -translate-x-3 w-6 h-6 rounded-full border-r border-white/20 bg-transparent backdrop-blur-xl"
+                        : "absolute left-0 top-1/2 -translate-y-1/2 -translate-x-3 w-6 h-6 rounded-full bg-[#F8FAFC] dark:bg-[#030712] border-r border-slate-200 dark:border-slate-800"
+                      } 
+                      style={merchant.theme_preset === 'custom' ? {
+                        borderColor: merchant.custom_text_color ? `${merchant.custom_text_color}30` : undefined
+                      } : undefined}
+                    />
+                    <div 
+                      className={preset
+                        ? "absolute right-0 top-1/2 -translate-y-1/2 translate-x-3 w-6 h-6 rounded-full border-l border-white/20 bg-transparent backdrop-blur-xl"
+                        : "absolute right-0 top-1/2 -translate-y-1/2 translate-x-3 w-6 h-6 rounded-full bg-[#F8FAFC] dark:bg-[#030712] border-l border-slate-200 dark:border-slate-800"
+                      }
+                      style={merchant.theme_preset === 'custom' ? {
+                        borderColor: merchant.custom_text_color ? `${merchant.custom_text_color}30` : undefined
+                      } : undefined}
+                    />
 
                     <div className="pl-2 pr-2">
                       <div className="flex justify-between items-start gap-4 mb-2">
-                        <h5 className={`font-extrabold text-base leading-tight transition-colors ${preset ? 'text-white' : 'text-slate-900 dark:text-white group-hover:text-brand-primary'}`}>
+                        <h5 
+                          className={`font-extrabold text-base leading-tight transition-colors ${preset ? 'text-white' : 'text-slate-900 dark:text-white group-hover:text-brand-primary'}`}
+                          style={merchant.theme_preset === 'custom' ? { color: merchant.custom_text_color } : undefined}
+                        >
                           {coupon.title}
                         </h5>
-                        <span className={`text-[9px] font-black px-2 py-1 rounded-lg uppercase flex-shrink-0 ${preset ? 'bg-white/20 text-white' : 'bg-brand-secondary/10 text-brand-secondary'}`}>
+                        <span 
+                          className={`text-[9px] font-black px-2 py-1 rounded-lg uppercase flex-shrink-0 ${preset ? 'bg-white/20 text-white' : 'bg-brand-secondary/10 text-brand-secondary'}`}
+                          style={merchant.theme_preset === 'custom' ? {
+                            backgroundColor: merchant.custom_text_color ? `${merchant.custom_text_color}25` : undefined,
+                            color: merchant.custom_text_color
+                          } : undefined}
+                        >
                           -{(100 - (Number(coupon.offer_price_cash) * 100 / Number(coupon.original_price))).toFixed(0)}% OFF
                         </span>
                       </div>
 
-                      <p className={`text-xs font-medium leading-relaxed mb-4 ${preset ? 'text-white/80' : 'text-slate-500 dark:text-slate-400'}`}>
+                      <p 
+                        className={`text-xs font-medium leading-relaxed mb-4 ${preset ? 'text-white/80' : 'text-slate-500 dark:text-slate-400'}`}
+                        style={merchant.theme_preset === 'custom' ? { color: merchant.custom_text_color ? `${merchant.custom_text_color}dd` : undefined } : undefined}
+                      >
                         {coupon.description}
                       </p>
 
-                      <div className={`flex items-center justify-between border-t border-dashed pt-4 mt-2 ${preset ? 'border-white/20' : 'border-slate-200 dark:border-slate-800'}`}>
+                      <div 
+                        className={`flex items-center justify-between border-t border-dashed pt-4 mt-2 ${preset ? 'border-white/20' : 'border-slate-200 dark:border-slate-800'}`}
+                        style={merchant.theme_preset === 'custom' ? { borderColor: merchant.custom_text_color ? `${merchant.custom_text_color}30` : undefined } : undefined}
+                      >
                         <div className="flex flex-col">
-                          <span className={`text-[9px] font-bold line-through ${preset ? 'text-white/55' : 'text-slate-400'}`}>${coupon.original_price}</span>
-                          <span className={`text-base font-black ${preset ? 'text-white' : 'text-slate-900 dark:text-white'}`}>${coupon.offer_price_cash}</span>
+                          <span 
+                            className={`text-[9px] font-bold line-through ${preset ? 'text-white/55' : 'text-slate-400'}`}
+                            style={merchant.theme_preset === 'custom' ? { color: merchant.custom_text_color ? `${merchant.custom_text_color}80` : undefined } : undefined}
+                          >
+                            ${coupon.original_price}
+                          </span>
+                          <span 
+                            className={`text-base font-black ${preset ? 'text-white' : 'text-slate-900 dark:text-white'}`}
+                            style={merchant.theme_preset === 'custom' ? { color: merchant.custom_text_color } : undefined}
+                          >
+                            ${coupon.offer_price_cash}
+                          </span>
                         </div>
                         <div className="text-right">
-                          <span className={`text-[9px] font-bold uppercase ${preset ? 'text-white/55' : 'text-slate-400'}`}>O canjea con</span>
-                          <div className={`flex items-center gap-1 ${preset ? 'text-white' : 'text-brand-primary'}`}>
+                          <span 
+                            className={`text-[9px] font-bold uppercase ${preset ? 'text-white/55' : 'text-slate-400'}`}
+                            style={merchant.theme_preset === 'custom' ? { color: merchant.custom_text_color ? `${merchant.custom_text_color}80` : undefined } : undefined}
+                          >
+                            O canjea con
+                          </span>
+                          <div 
+                            className={`flex items-center gap-1 ${preset ? 'text-white' : 'text-brand-primary'}`}
+                            style={merchant.theme_preset === 'custom' ? { color: merchant.custom_icon_color || merchant.custom_text_color } : undefined}
+                          >
                             <span className="text-sm font-black">{coupon.offer_price_points.toLocaleString()}</span>
                             <span className="text-[9px] font-black">Puntos</span>
                           </div>
