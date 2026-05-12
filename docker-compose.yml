@@ -3,8 +3,12 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    ports:
-      - "3001:3000"
+    restart: always
     environment:
       - NODE_ENV=production
-    restart: unless-stopped
+    networks:
+      - dokploy-network
+
+networks:
+  dokploy-network:
+    external: true
