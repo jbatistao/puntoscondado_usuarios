@@ -19,7 +19,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         if (!credentials?.email || !credentials?.password) return null;
 
         try {
-          const res = await fetch(`${process.env.BACKEND_URL || 'http://localhost:8000'}/api/auth/login/`, {
+          const backendUrl = process.env.BACKEND_URL || process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
+          const res = await fetch(`${backendUrl}/api/auth/login/`, {
             method: 'POST',
             body: JSON.stringify({
               email: credentials.email,
